@@ -2,350 +2,251 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Watch NFL Games — Live Streams | Unlimited Access</title>
-  <meta name="description" content="Stream every NFL game live. Try a 15-second preview, then register to unlock full access. HD quality, no cable required." />
-  <meta name="robots" content="index,follow" />
-  <meta property="og:title" content="Watch NFL Games — Live Streams" />
-  <meta property="og:description" content="Instant access to every NFL game. Try a 15-second preview then unlock full viewing." />
-  <meta property="og:type" content="website" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>NFL Live — Watch Every Game | 15s Preview</title>
+  <meta name="description" content="Tap to start a 15-second live preview of any NFL game. Register to unlock full HD streams on all devices—no cable required." />
   <meta name="theme-color" content="#0b1221" />
-
   <style>
+    /* =========  Mobile-First Design System  ========= */
     :root{
       --bg:#0b1221;
-      --card:#0f1830;
-      --muted:#8ea4c9;
-      --text:#eaf1ff;
-      --brand:#2ee3ff;
-      --brand-2:#7cffc1;
-      --accent:#ff3b3b;
+      --panel:#0e1733;
+      --ink:#eaf1ff;
+      --muted:#9fb0d3;
+      --brand:#21d4fd;
+      --brand2:#7cffc1;
+      --accent:#ff4d4d;
       --ok:#2dd36f;
       --shadow:0 10px 30px rgba(0,0,0,.35);
-      --radius:18px;
+      --r:16px;
+      --pad:clamp(16px, 4vw, 24px);
+      --tap:48px; /* min comfortable tap size */
     }
 
     *{box-sizing:border-box}
     html,body{height:100%}
     body{
-      margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
-      color:var(--text); background: radial-gradient(1200px 800px at 75% -20%, #2b3762 0%, transparent 60%) , linear-gradient(160deg,#050911, #0b1221 40%, #0b1221 100%);
-      overflow-x:hidden;
+      margin:0; color:var(--ink); background:
+        radial-gradient(900px 600px at 80% -10%, #2b3762 0%, transparent 60%),
+        linear-gradient(160deg,#050a14, #0b1221 40%, #0b1221 100%);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+      overscroll-behavior-y:none;
     }
 
-    /* Header */
-    .site{
-      max-width:1200px; margin-inline:auto; padding:24px;
+    .wrap{ max-width:820px; margin-inline:auto; padding: calc(var(--pad) + env(safe-area-inset-top)) var(--pad) calc(var(--pad) + env(safe-area-inset-bottom)); }
+
+    /* ===== Header ===== */
+    header{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:12px;}
+    .brand{
+      display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--ink);
+      font-weight:800;
     }
-    header{
-      display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:18px;
+    .badge{
+      width:34px; height:34px; border-radius:12px; background: conic-gradient(from 210deg,#21d4fd,#7cffc1,#21d4fd);
+      display:grid; place-items:center; box-shadow:var(--shadow);
     }
-    .logo{
-      display:flex; align-items:center; gap:12px; text-decoration:none; color:var(--text);
-      font-weight:800; letter-spacing:.3px;
-    }
-    .logo-badge{
-      width:38px; height:38px; border-radius:12px;
-      background: conic-gradient(from 220deg at 50% 50%, #16d6ff, #7cffc1, #16d6ff);
-      position:relative; box-shadow: var(--shadow);
-      display:grid; place-items:center;
-    }
-    .logo-badge:before{
-      content:"▶"; font-size:16px; color:#00121b; font-weight:900; transform:translateX(1px);
-      background:#cffff6; padding:2px 6px; border-radius:6px; mix-blend:screen; opacity:.85;
-    }
-    .cta{
-      display:flex; gap:10px; align-items:center;
+    .badge:before{ content:"▶"; font-size:14px; color:#04131b; font-weight:900; transform:translateX(1px) }
+    .top-cta{
+      display:flex; gap:10px;
     }
     .btn{
-      appearance:none; border:0; border-radius:14px; padding:10px 16px; font-weight:700; cursor:pointer;
-      color:#00121b; background:linear-gradient(135deg,var(--brand), var(--brand-2));
-      box-shadow:0 8px 20px rgba(46,227,255,.25);
-      transition:transform .15s ease, filter .15s ease;
-      text-decoration:none; display:inline-flex; align-items:center; gap:10px;
+      appearance:none; border:0; border-radius:14px; padding:12px 16px; font-weight:800; cursor:pointer;
+      text-decoration:none; display:inline-flex; align-items:center; justify-content:center; gap:8px;
+      color:#03121a; background:linear-gradient(135deg,var(--brand),var(--brand2));
+      box-shadow:0 8px 18px rgba(33,212,253,.25); min-height:var(--tap);
+      transition: transform .12s ease, filter .12s ease;
     }
-    .btn:hover{ transform:translateY(-1px); filter:saturate(1.1) }
-    .btn.ghost{
-      background:transparent; border:1px solid rgba(255,255,255,.15); color:var(--text);
-      box-shadow:none;
-    }
+    .btn:hover{ transform:translateY(-1px); filter:saturate(1.08) }
+    .btn.ghost{ background:transparent; color:var(--ink); border:1px solid rgba(255,255,255,.14); box-shadow:none }
 
-    /* Hero */
+    /* ===== Hero copy (stacked for phones) ===== */
     .hero{
-      display:grid; grid-template-columns: 1.15fr .85fr; gap:28px; align-items:stretch;
+      display:grid; gap:14px; margin-bottom:12px;
     }
-    @media (max-width:980px){ .hero{ grid-template-columns:1fr; } }
-    .hero-copy{
-      background:linear-gradient(180deg, rgba(255,255,255,.06), transparent 65%);
-      border:1px solid rgba(255,255,255,.08); border-radius:var(--radius);
-      padding:28px; box-shadow: var(--shadow); position:relative; overflow:hidden;
-      isolation:isolate;
-    }
-    .hero-copy:after{
-      content:""; position:absolute; inset:-2px; border-radius:inherit;
-      background: radial-gradient(400px 180px at -10% -10%, rgba(46,227,255,.22), transparent 50%),
-                  radial-gradient(300px 150px at 110% 110%, rgba(124,255,193,.18), transparent 50%);
-      pointer-events:none; z-index:-1;
-    }
-    .eyebrow{
-      display:inline-flex; gap:8px; align-items:center; font-size:12px; letter-spacing:.6px; text-transform:uppercase; color:var(--muted);
-    }
-    .live-dot{ width:10px; height:10px; border-radius:50%; background:var(--accent); box-shadow:0 0 0 0 rgba(255,59,59,.75); animation:pulse 1.8s infinite }
-    @keyframes pulse{ 0%{ box-shadow:0 0 0 0 rgba(255,59,59,.65)} 70%{ box-shadow:0 0 0 10px rgba(255,59,59,0)} 100%{ box-shadow:0 0 0 0 rgba(255,59,59,0)} }
+    .eyebrow{ display:inline-flex; align-items:center; gap:8px; font-size:12px; letter-spacing:.6px; text-transform:uppercase; color:var(--muted)}
+    .live-dot{ width:10px; height:10px; border-radius:50%; background:var(--accent); box-shadow:0 0 0 0 rgba(255,77,77,.6); animation:pulse 1.8s infinite }
+    @keyframes pulse{ 0%{box-shadow:0 0 0 0 rgba(255,77,77,.6)} 70%{box-shadow:0 0 0 10px rgba(255,77,77,0)} 100%{box-shadow:0 0 0 0 rgba(255,77,77,0)} }
 
-    h1{ font-size: clamp(28px, 3.6vw, 48px); margin:10px 0 12px }
-    .lead{ color:#d7e5ff; line-height:1.6; font-size: clamp(15px,1.8vw,18px) }
-    .benefits{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:18px }
-    @media (max-width:700px){ .benefits{ grid-template-columns:1fr 1fr } }
-    .chip{
-      border:1px solid rgba(255,255,255,.1); background:#0d1630c2; border-radius:12px; padding:10px 12px; font-size:14px;
-      display:flex; align-items:center; gap:8px; color:#e8f2ff;
-    }
-    .chip .ok{ width:8px; height:8px; border-radius:50%; background:var(--ok); box-shadow:0 0 14px rgba(45,211,111,.4) }
+    h1{ font-size: clamp(22px, 6.2vw, 34px); line-height:1.15; margin:8px 0 }
+    .lead{ color:#d7e5ff; line-height:1.55; font-size: clamp(14px, 4vw, 17px) }
 
-    /* Player Card */
-    .player-card{
-      position:relative; border-radius:var(--radius); overflow:hidden; background: #0a1227; border:1px solid rgba(255,255,255,.08);
-      box-shadow: var(--shadow);
+    /* ===== Player card (phone-first) ===== */
+    .player{
+      position:relative; background:#0a1227; border-radius:var(--r); overflow:hidden;
+      border:1px solid rgba(255,255,255,.08); box-shadow:var(--shadow);
+      aspect-ratio:16/9;
     }
-    .scorebar{
-      position:absolute; top:10px; left:10px; right:10px; display:flex; align-items:center; justify-content:space-between; gap:10px;
-      font-weight:700; z-index:5; pointer-events:none;
+    video{ width:100%; height:100%; object-fit:cover; display:block; background:#000; filter:saturate(1.05) contrast(1.04) }
+
+    /* HUD */
+    .hud{
+      position:absolute; inset:0; display:flex; flex-direction:column; justify-content:space-between; pointer-events:none;
     }
-    .score{
-      background: rgba(0,0,0,.55); backdrop-filter: blur(6px); border:1px solid rgba(255,255,255,.08);
-      border-radius:12px; padding:6px 10px; display:flex; align-items:center; gap:10px;
+    .topbar{
+      display:flex; align-items:center; justify-content:space-between; gap:8px;
+      padding:10px; padding-top:12px;
     }
-    .badge-live{
-      display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border-radius:999px;
-      background: rgba(255,59,59,.18); color:#ffd7d7; border:1px solid rgba(255,59,59,.35);
-      text-transform:uppercase; letter-spacing:.6px; font-size:12px;
+    .score, .pill{
+      background: rgba(0,0,0,.55); backdrop-filter: blur(6px);
+      border:1px solid rgba(255,255,255,.1); color:#e6efff; border-radius:12px; padding:6px 10px; font-weight:700; font-size:13px;
     }
-    .viewers{ color:#b9c8e9; font-weight:600 }
+    .pill{ display:inline-flex; align-items:center; gap:6px; text-transform:uppercase; letter-spacing:.5px }
+    .trial{
+      margin:6px 10px 0; height:8px; border-radius:999px; background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.08); overflow:hidden;
+    }
+    .fill{ height:100%; width:0%; background:linear-gradient(90deg,var(--brand2),var(--brand)); box-shadow:0 0 10px rgba(33,212,253,.45); transition:width linear }
     .ticker{
-      position:absolute; bottom:0; left:0; right:0; background:linear-gradient(180deg, transparent, rgba(0,0,0,.8) 30%, rgba(0,0,0,.85) 100%);
-      color:#cfe0ff; font-size:14px; padding:10px 12px; display:flex; align-items:center; gap:10px; z-index:3;
+      margin:0; padding:10px 12px; background:linear-gradient(180deg, transparent, rgba(0,0,0,.8) 35%, rgba(0,0,0,.9) 100%);
+      color:#cfe0ff; font-size:13px; white-space:nowrap; overflow:hidden;
     }
-    .ticker span.marq{ overflow:hidden; white-space:nowrap; display:block; animation:marq 32s linear infinite }
-    @keyframes marq{ from{ transform:translateX(0) } to{ transform:translateX(-100%) } }
+    .ticker span{ display:inline-block; padding-left:100%; animation:marq 28s linear infinite }
+    @keyframes marq{ to{ transform:translateX(-100%) } }
 
-    video{
-      width:100%; height:100%; display:block; aspect-ratio:16/9; object-fit:cover; background: #0a1227;
-      filter:saturate(1.05) contrast(1.04);
+    /* Overlay */
+    .overlay{ position:absolute; inset:0; display:grid; place-items:center; background:linear-gradient(180deg, transparent, rgba(0,0,0,.25)); z-index:3 }
+    .play-ui{ display:flex; flex-direction:column; align-items:center; gap:10px; text-align:center; transition:opacity .2s ease, transform .2s ease }
+    .play{ width:90px; height:90px; min-width:90px; border-radius:999px; border:0; cursor:pointer;
+      background: radial-gradient(circle at 30% 30%, var(--brand2), var(--brand) 60%, #0bb3ff 100%);
+      box-shadow:0 10px 30px rgba(25,215,255,.35), inset 0 -8px 18px rgba(0,0,0,.35); display:grid; place-items:center;
+      touch-action:manipulation;
     }
-    .video-overlay{
-      position:absolute; inset:0; display:grid; place-items:center; background: radial-gradient(600px 300px at 50% -10%, rgba(46,227,255,.12), transparent 60%) , linear-gradient(180deg, transparent, rgba(0,0,0,.25));
-      z-index:4;
-    }
-    .play-ui{
-      display:flex; flex-direction:column; align-items:center; gap:12px; transform:translateY(0);
-      transition:transform .25s ease, opacity .25s ease; text-align:center;
-    }
-    .play-btn{
-      width:84px; height:84px; border-radius:50%; border:0; cursor:pointer;
-      background: radial-gradient(circle at 30% 30%, #7cffc1 0%, #2ee3ff 60%, #16a1ff 100%);
-      box-shadow:0 10px 30px rgba(25,215,255,.35), inset 0 -8px 18px rgba(0,0,0,.35);
-      display:grid; place-items:center; transition:transform .12s ease;
-    }
-    .play-btn:active{ transform:scale(.98) }
-    .play-btn svg{ width:30px; height:30px; transform:translateX(2px) }
-    .hint{ color:#cfe0ff; opacity:.9; font-weight:600 }
+    .play svg{ width:32px; height:32px; transform:translateX(2px) }
+    .hint{ font-weight:700; color:#eaf1ff; text-shadow:0 2px 8px rgba(0,0,0,.4) }
+
     .hidden{ opacity:0; pointer-events:none; transform:translateY(8px) }
+    .blurred video{ filter: blur(2px) brightness(.82) }
 
-    /* Trial bar */
-    .trialbar{
-      position:absolute; top:46px; left:10px; right:10px; display:flex; align-items:center; gap:10px; z-index:5; pointer-events:none;
-    }
-    .meter{
-      height:8px; width:100%; border-radius:999px; background:rgba(255,255,255,.1); overflow:hidden; border:1px solid rgba(255,255,255,.08);
-    }
-    .fill{
-      height:100%; width:0%;
-      background: linear-gradient(90deg, #7cffc1, #2ee3ff);
-      box-shadow:0 0 12px rgba(124,255,193,.5);
-      animation-play-state: paused;
-    }
+    /* ===== Cards (phone stack) ===== */
+    .cards{ display:grid; gap:12px; margin-top:14px }
+    .card{ background:linear-gradient(180deg, rgba(255,255,255,.05), transparent 60%); border:1px solid rgba(255,255,255,.08); border-radius:var(--r); padding:14px }
+    .card h3{ margin:4px 0 6px; font-size:18px }
+    .card p{ margin:0; color:#d6e3ff; line-height:1.6 }
 
-    /* Modal */
-    .modal{
-      position:fixed; inset:0; display:grid; place-items:center; background: rgba(5,10,20,.55);
-      backdrop-filter: blur(10px); opacity:0; pointer-events:none; transition: opacity .25s ease;
-      padding:20px; z-index:50;
-    }
+    /* ===== Modal (full-screen, thumb-friendly) ===== */
+    .modal{ position:fixed; inset:0; background:rgba(6,12,22,.6); backdrop-filter: blur(10px); display:grid; place-items:end center; padding: var(--pad); opacity:0; pointer-events:none; transition:opacity .2s ease; z-index:50 }
     .modal.open{ opacity:1; pointer-events:auto }
-    .modal-card{
-      width:min(620px, 96vw); background: linear-gradient(180deg, #0e1733, #0a1227);
-      border:1px solid rgba(255,255,255,.08); border-radius:20px; box-shadow: var(--shadow);
-      padding:22px;
+    .sheet{
+      width:100%; max-width:640px; background:linear-gradient(180deg,#0f1a39,#0a132a);
+      border:1px solid rgba(255,255,255,.1); border-radius:20px; padding:16px;
+      transform:translateY(20px); animation:rise .2s ease forwards;
     }
-    .modal-head{
-      display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:4px;
-    }
-    .modal-title{ font-size: clamp(20px,2.2vw,26px); margin:0 }
-    .modal-body{ color:#cfe0ff; line-height:1.7 }
-    .modal-actions{ display:flex; flex-wrap:wrap; gap:10px; margin-top:16px }
-    .small{ font-size:12px; color:#9fb0d3 }
+    @keyframes rise{ to{ transform:translateY(0) } }
+    .sheet h2{ margin:0 0 8px; font-size:clamp(18px,5.5vw,22px) }
+    .sheet p{ margin:0; color:#cfe0ff; line-height:1.65 }
+    .actions{ display:grid; grid-template-columns:1fr; gap:10px; margin-top:14px }
+    .btn.full{ width:100% }
+    .fine{ margin-top:8px; font-size:12px; color:var(--muted) }
 
-    /* Sections */
-    .grid{
-      display:grid; grid-template-columns: repeat(3, 1fr); gap:18px; margin-top:28px;
-    }
-    @media (max-width:900px){ .grid{ grid-template-columns:1fr 1fr } }
-    @media (max-width:600px){ .grid{ grid-template-columns:1fr } }
-    .card{
-      background:linear-gradient(180deg, rgba(255,255,255,.05), transparent 60%);
-      border:1px solid rgba(255,255,255,.08); border-radius:var(--radius); padding:18px; box-shadow: var(--shadow);
-    }
-    .card h3{ margin:6px 0 8px }
-    .card p{ color:#cfe0ff }
-
-    footer{
-      margin:38px 0 10px; color:#9fb0d3; font-size:13px; display:flex; flex-direction:column; gap:8px;
-    }
-    .links{ display:flex; flex-wrap:wrap; gap:14px }
+    /* ===== Footer ===== */
+    footer{ margin:18px 0 6px; color:var(--muted); font-size:13px }
+    .links{ display:flex; flex-wrap:wrap; gap:12px }
     .links a{ color:#cfe0ff; text-decoration:none; border-bottom:1px dashed rgba(207,224,255,.3) }
-    .disclaimer{ opacity:.85 }
 
-    /* Blur on stop */
-    .blurred video{ filter: blur(2px) brightness(.8) }
-    .blurred .video-overlay{ background: rgba(1,5,15,.35) }
+    /* ===== Motion preferences ===== */
+    @media (prefers-reduced-motion:reduce){
+      .play, .play-ui, .badge, .ticker span{ animation:none !important }
+      .btn, .hidden{ transition:none !important }
+    }
 
-    /* Subtle float for logos */
-    .float{ animation: float 6s ease-in-out infinite }
-    @keyframes float { 0%,100%{ transform:translateY(0) } 50%{ transform:translateY(-6px) } }
+    /* ===== Larger screens: gently enhance ===== */
+    @media (min-width:760px){
+      .hero{ grid-template-columns: 1.1fr .9fr; gap:16px; align-items:start }
+      .cards{ grid-template-columns: repeat(3,1fr); gap:14px }
+      .sheet{ border-radius:24px }
+    }
   </style>
 </head>
 <body>
-  <div class="site">
+  <div class="wrap">
     <header>
-      <a class="logo" href="#">
-        <span class="logo-badge float"></span>
-        <span>Gridiron<span style="color:var(--brand)">&nbsp;Live</span></span>
+      <a class="brand" href="#">
+        <span class="badge" aria-hidden="true"></span>
+        <span>Gridiron<span style="color:var(--brand)">Live</span></span>
       </a>
-      <div class="cta">
-        <a class="btn ghost" href="#features" aria-label="See features">Features</a>
-        <a class="btn" href="https://tazztv.trk2afse.com/click?pid=104&offer_id=1" target="_blank" rel="noopener nofollow">Register Now</a>
+      <div class="top-cta">
+        <a class="btn ghost" href="#faq">FAQ</a>
+        <a class="btn" href="https://tazztv.trk2afse.com/click?pid=104&offer_id=1" target="_blank" rel="noopener nofollow">Register</a>
       </div>
     </header>
 
     <section class="hero">
-      <div class="hero-copy">
-        <div class="eyebrow"><span class="live-dot"></span> NFL SEASON • LIVE</div>
-        <h1>Watch Every NFL Game Live — No Cable Required</h1>
-        <p class="lead">Click the player to start your 15-second preview. When you’re ready to unlock full access in HD, register in seconds and stream on desktop or mobile.</p>
-
-        <div class="benefits">
-          <div class="chip"><span class="ok"></span> HD & Stable Streams</div>
-          <div class="chip"><span class="ok"></span> Works on Any Device</div>
-          <div class="chip"><span class="ok"></span> Cancel Anytime</div>
-        </div>
-
-        <div class="grid" id="features">
-          <div class="card">
-            <h3>All Games, One Place</h3>
-            <p>RedZone, primetime, and every Sunday matchup—switch instantly without juggling logins.</p>
-          </div>
-          <div class="card">
-            <h3>Zero Learning Curve</h3>
-            <p>Click to play. Clean interface, lightning player, and real-time scoreboard feel.</p>
-          </div>
-          <div class="card">
-            <h3>Watch Anywhere</h3>
-            <p>Phone, tablet, laptop—your account follows you with seamless device handoff.</p>
-          </div>
-        </div>
+      <div>
+        <div class="eyebrow"><span class="live-dot"></span> NFL • LIVE TODAY</div>
+        <h1>Tap to Preview the Game — Unlock Full HD Access in Seconds</h1>
+        <p class="lead">Mobile-first stream experience. Start a <strong>15-second</strong> live preview; when the timer runs out, register to resume instantly on your phone, tablet, or TV.</p>
       </div>
 
       <!-- Player -->
-      <div class="player-card" id="playerCard" aria-label="Live game player">
-        <div class="scorebar">
-          <div class="score">
-            <span style="opacity:.85">CLE</span><span>13</span> — <span style="opacity:.85">CAR</span><span>10</span>
-            <span style="opacity:.6; margin-left:8px">Q3 • 07:42</span>
-          </div>
-          <div class="score" style="gap:8px">
-            <span class="badge-live"><span class="live-dot" style="box-shadow:none"></span> Live</span>
-            <span class="viewers" id="viewers">27,413 watching</span>
-          </div>
-        </div>
-
-        <div class="trialbar">
-          <div class="meter"><div class="fill" id="trialFill"></div></div>
-        </div>
-
+      <div class="player" id="playerCard" aria-label="Live game player">
         <video id="video" preload="metadata" playsinline>
-          <!-- Public domain demo clip; replace with your own if desired -->
+          <!-- Replace source with any MP4/HLS poster/stream you control. This is a lightweight demo clip. -->
           <source src="flower.mp4" type="video/mp4" />
           Your browser does not support HTML5 video.
         </video>
 
-        <div class="video-overlay" id="overlay">
-          <div class="play-ui" id="playUI">
-            <button class="play-btn" id="playBtn" aria-label="Play preview">
-              <svg viewBox="0 0 24 24" fill="#00121b" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                <path d="M8 5v14l11-7z"/>
-              </svg>
-            </button>
-            <div class="hint">Click to start a 15-second live preview</div>
+        <!-- HUD -->
+        <div class="hud">
+          <div class="topbar">
+            <div class="score" id="score">CLE 13 — CAR 10 · Q3 07:42</div>
+            <div class="pill"><span class="live-dot" style="box-shadow:none"></span> Live</div>
           </div>
+          <div class="trial" aria-hidden="true"><div class="fill" id="trialFill"></div></div>
+          <div class="ticker" aria-live="polite"><span>Browns convert on 3rd &amp; 7 • Panthers defense tightens • Clear skies at Bank of America Stadium • Halftime analysis up next • </span></div>
         </div>
 
-        <div class="ticker">
-          <strong style="opacity:.8">Updates:</strong>
-          <span class="marq">Browns convert on 3rd &amp; 7 • Panthers defense tightens in red zone • Weather: clear skies, light wind • Next: halftime analysis &amp; highlights</span>
+        <!-- Tap overlay -->
+        <div class="overlay" id="overlay">
+          <div class="play-ui" id="playUI">
+            <button class="play" id="playBtn" aria-label="Play 15-second preview">
+              <svg viewBox="0 0 24 24" fill="#03121a" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+            </button>
+            <div class="hint">Tap to start your preview</div>
+          </div>
         </div>
       </div>
     </section>
 
-    <section class="grid" style="margin-top:28px">
-      <div class="card">
-        <h3>How the Preview Works</h3>
-        <p>Hit play to start a short, uninterrupted 15-second preview. When the timer ends, you can register instantly to resume watching where you left off.</p>
-      </div>
-      <div class="card">
-        <h3>Why Fans Choose Us</h3>
-        <p>No lag, no fuss, no cable. Just crisp streams and a clean interface. Join thousands enjoying Sunday football the easy way.</p>
-      </div>
-      <div class="card">
-        <h3>Secure & Trusted</h3>
-        <p>Your registration happens on our partner’s secure checkout. You’ll get immediate access upon completion.</p>
-      </div>
+    <section class="cards" style="margin-top:10px">
+      <div class="card"><h3>All Games, One Login</h3><p>RedZone, primetime, and every Sunday matchup. Switch games in seconds—no cable.</p></div>
+      <div class="card"><h3>Built for Phones</h3><p>Fast player, big buttons, clean HUD. Looks crisp on any screen size.</p></div>
+      <div class="card"><h3>Secure Access</h3><p>Registration and billing handled by our trusted partner on a secure checkout.</p></div>
+    </section>
+
+    <section id="faq" class="cards" style="margin-top:14px">
+      <div class="card"><h3>Do I need cable?</h3><p>No. Stream in your mobile browser or cast to TV after registering.</p></div>
+      <div class="card"><h3>Is there a free trial?</h3><p>You get a 15-second instant preview here. Register to unlock full games in HD.</p></div>
+      <div class="card"><h3>Can I cancel?</h3><p>Yes. Manage your plan on the partner platform after signup.</p></div>
     </section>
 
     <footer>
       <div class="links">
-        <a href="#features">Features</a>
         <a href="#faq">FAQ</a>
-        <a href="#support">Support</a>
         <a href="#terms">Terms</a>
         <a href="#privacy">Privacy</a>
+        <a href="https://tazztv.trk2afse.com/click?pid=104&offer_id=1" target="_blank" rel="noopener nofollow">Register</a>
       </div>
-      <div class="disclaimer">
-        <strong>Note:</strong> This page offers a promotional preview and links to a partner platform for full live streams. Availability and content are subject to the partner’s terms and regional rights.
-      </div>
+      <p style="margin:6px 0 0; opacity:.9"><strong>Note:</strong> This page provides a promotional preview and links to a partner platform for full live streams. Availability may vary by region.</p>
     </footer>
   </div>
 
   <!-- Modal -->
-  <div class="modal" id="modal">
-    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="mTitle">
-      <div class="modal-head">
-        <h2 class="modal-title" id="mTitle">Trial Over — Continue Watching Live</h2>
-        <div class="badge-live"><span class="live-dot" style="box-shadow:none"></span> Still Live</div>
+  <div class="modal" id="modal" aria-hidden="true">
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+      <h2 id="mTitle">Trial Over — Continue Watching Live</h2>
+      <p>Your 15-second preview ended. Register now to resume in HD with instant access.</p>
+      <div class="actions">
+        <a class="btn full" id="ctaPrimary" href="https://tazztv.trk2afse.com/click?pid=104&offer_id=1" target="_blank" rel="noopener nofollow">Register &amp; Resume</a>
+        <button class="btn ghost full" id="ctaClose" type="button">Maybe Later</button>
       </div>
-      <div class="modal-body">
-        Your 15-second preview has ended. Unlock the full game in HD with instant access.
-        <div class="modal-actions">
-          <a class="btn" id="ctaPrimary" href="https://tazztv.trk2afse.com/click?pid=104&offer_id=1" target="_blank" rel="noopener nofollow">Register &amp; Resume</a>
-          <button class="btn ghost" id="ctaClose">Maybe Later</button>
-        </div>
-        <div class="small" style="margin-top:8px">You’ll be returned to the player after registration.</div>
-      </div>
+      <div class="fine">You’ll return to the player after registering.</div>
     </div>
   </div>
 
   <script>
     (function(){
+      const AFF_URL = "https://tazztv.trk2afse.com/click?pid=104&offer_id=1";
+
       const video = document.getElementById('video');
       const overlay = document.getElementById('overlay');
       const playBtn = document.getElementById('playBtn');
@@ -353,108 +254,81 @@
       const fill = document.getElementById('trialFill');
       const modal = document.getElementById('modal');
       const ctaClose = document.getElementById('ctaClose');
+      const ctaPrimary = document.getElementById('ctaPrimary');
       const playerCard = document.getElementById('playerCard');
-      const viewers = document.getElementById('viewers');
 
-      let trialTimer = null;
-      let fillAnim = null;
-      let trialSeconds = 15;
+      let previewSeconds = 15;
       let started = false;
-
-      // Animate fake viewer count slightly for “live” feel
-      let baseViewers = 27413;
-      setInterval(()=>{
-        const delta = (Math.random()>.5?1:-1) * Math.floor(Math.random()*5);
-        baseViewers = Math.max(1200, baseViewers + delta);
-        viewers.textContent = baseViewers.toLocaleString() + " watching";
-      }, 1800);
+      let ended = false;
+      let timerId = null;
 
       function startPreview(){
+        if(ended) { openModal(); return; }
         if(started) return;
         started = true;
 
-        // UX: hide overlay, unmute on user gesture
+        // Hide overlay, start playback (unmuted after user gesture)
         playUI.classList.add('hidden');
-        setTimeout(()=> overlay.style.display = 'none', 250);
+        setTimeout(()=> overlay.style.display='none', 200);
 
-        // Some browsers require video to start muted first; unmute right away
         video.muted = false;
         video.currentTime = 0;
-        video.play().catch(()=> {
-          // fallback: keep muted if needed
-          video.muted = true;
+        video.play().catch(()=>{
+          video.muted = true; // iOS fallback
           video.play().catch(()=>{});
         });
 
-        // Progress fill animation
-        fill.style.transition = `width ${trialSeconds}s linear`;
-        requestAnimationFrame(()=>{ fill.style.width = '100%'; });
+        // Animate progress
+        fill.style.transitionDuration = previewSeconds + 's';
+        requestAnimationFrame(()=> fill.style.width = '100%');
 
         // Stop after X seconds
-        trialTimer = setTimeout(stopPreview, trialSeconds * 1000);
+        timerId = setTimeout(stopPreview, previewSeconds * 1000);
       }
 
       function stopPreview(){
+        if(ended) return;
         try{ video.pause(); }catch(e){}
         playerCard.classList.add('blurred');
+        ended = true;
         openModal();
       }
 
       function openModal(){
         modal.classList.add('open');
+        modal.setAttribute('aria-hidden','false');
+        // Focus the primary CTA for accessibility
+        setTimeout(()=> ctaPrimary?.focus(), 50);
       }
+
       function closeModal(){
         modal.classList.remove('open');
-        // Keep blurred & paused; user can re-open modal by clicking play again
+        modal.setAttribute('aria-hidden','true');
       }
 
-      // Re-enable overlay if user clicks video after stop
-      playerCard.addEventListener('click', (e)=>{
-        // If trial already ended, clicking the player shows modal again
-        if(started && video.paused){
-          openModal();
-        }
-      });
-
-      playBtn.addEventListener('click', (e)=>{
-        e.stopPropagation();
-        startPreview();
-      });
-
+      // Interactions
+      playBtn.addEventListener('click', (e)=>{ e.stopPropagation(); startPreview(); });
+      playerCard.addEventListener('click', ()=>{ if(ended) openModal(); });
       ctaClose.addEventListener('click', closeModal);
 
-      // Accessibility: Space/Enter on play button
-      playBtn.addEventListener('keydown', (e)=>{
-        if(e.key==='Enter' || e.key===' '){
-          e.preventDefault(); startPreview();
+      // If the demo video ends before the timer (short clip), keep looping during preview
+      video.addEventListener('ended', ()=>{
+        if(started && !ended){
+          video.currentTime = 0;
+          video.play().catch(()=>{});
         }
       });
 
-      // If the video ends naturally (demo clip), loop it during preview
-      video.addEventListener('ended', ()=>{
-        if(started && !video.paused){
-          video.currentTime = 0; video.play().catch(()=>{});
+      // Guard on visibility change (optional)
+      document.addEventListener('visibilitychange', ()=>{
+        if(document.hidden && started && !ended){
+          // If user switches apps during preview, continue countdown; nothing needed.
         }
       });
+
+      // Deep link all register buttons (in case you change AFF_URL once)
+      document.querySelectorAll('a[href*="tazztv"]').forEach(a=> a.href = AFF_URL);
     })();
   </script>
-
-  <!-- FAQ (optional, for SEO) -->
-  <section class="site" id="faq" style="padding-top:0">
-    <div class="grid">
-      <div class="card">
-        <h3>Do I need cable?</h3>
-        <p>No. Stream from your browser on any device. Register to unlock full live games in HD.</p>
-      </div>
-      <div class="card">
-        <h3>Is there a free trial?</h3>
-        <p>You get a 15-second instant preview here. Full access is available after quick registration.</p>
-      </div>
-      <div class="card">
-        <h3>Can I cancel anytime?</h3>
-        <p>Yes. Your account is managed on the partner platform where you complete registration.</p>
-      </div>
-    </div>
-  </section>
 </body>
 </html>
