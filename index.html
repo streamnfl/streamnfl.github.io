@@ -65,7 +65,6 @@
       border:1px solid rgba(255,255,255,.08); box-shadow:var(--shadow); aspect-ratio:16/9;
     }
     video{ width:100%; height:100%; object-fit:cover; display:block; background:#000; filter:saturate(1.05) contrast(1.04) }
-    /* HUD (kept minimal so nothing covers the stream) */
     .hud{ position:absolute; inset:0; pointer-events:none; display:flex; flex-direction:column; justify-content:space-between }
     .topbar{ display:flex; align-items:center; justify-content:space-between; gap:8px; padding:10px 10px 0 }
     .pill{
@@ -136,7 +135,7 @@
 
     /* Motion prefs */
     @media (prefers-reduced-motion:reduce){
-      .play-ui, .play, .ticker span{ animation:none !important }
+      .play-ui, .play{ animation:none !important }
       .btn, .hidden{ transition:none !important }
     }
     @media (min-width:760px){
@@ -162,7 +161,8 @@
     <section class="hero">
       <div>
         <div class="eyebrow"><span class="live-dot"></span> NFL • LIVE TODAY</div>
-        <h1>Dallas Cowboys vs Los Angeles Rams Live</h1>
+        <!-- DYNAMIC TITLE: change via URL, e.g., ?title=Your%20Custom%20Headline or ?title=Your+Custom+Headline -->
+        <h1 id="dynamicTitle">Watch NFL Games Live on Your Phone</h1>
         <p class="lead">Tap the player to start a <strong>15-second</strong> preview. When the timer ends, register in seconds to keep watching in HD—no cable required.</p>
       </div>
 
@@ -247,6 +247,25 @@
     (function(){
       const AFF_URL = "https://billing.zuzz.tv/aff/go/nareshkumar9?i=1862";
 
+      // ===== Dynamic Headline from URL param =====
+      // Usage: ?title=Your%20Custom%20Headline  OR  ?title=Your+Custom+Headline
+      (function setDynamicTitle(){
+        const el = document.getElementById('dynamicTitle');
+        const params = new URLSearchParams(location.search);
+        let t = params.get('title') || params.get('headline') || params.get('h');
+        if (t && el) {
+          // Replace plus with space (supports + as space) and trim/limit
+          t = t.replace(/\+/g, ' ').trim();
+          if (t.length > 120) t = t.slice(0,120) + '…';
+          el.textContent = t;
+          // If very long, gently reduce size
+          if (t.length > 48) {
+            el.style.fontSize = 'clamp(20px, 5.5vw, 30px)';
+            el.style.lineHeight = '1.2';
+          }
+        }
+      })();
+
       const video = document.getElementById('video');
       const overlay = document.getElementById('overlay');
       const playBtn = document.getElementById('playBtn');
@@ -265,7 +284,6 @@
       // ========== Live Watch counter (always > 70k and changing) ==========
       let count = Math.floor(71000 + Math.random()*7000); // 71k - 78k start
       const bump = ()=>{
-        // Small natural oscillations, but clamp > 70000
         const delta = (Math.random() < 0.6 ? 1 : -1) * Math.floor(10 + Math.random()*120);
         count = Math.max(70010, count + delta);
         watchers.textContent = count.toLocaleString();
@@ -337,3 +355,5 @@
   </script>
 </body>
 </html>
+
+    
