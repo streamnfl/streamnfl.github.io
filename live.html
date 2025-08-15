@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>ZUZZ.TV</title>
+  <meta name="description" content="ZUZZ.TV — Tap to preview NFL games live for 15 seconds, then register to watch in HD on your phone. No cable required." />
+  <meta name="theme-color" content="#0a0614" />
+  <style>
+    /* =====================  Rebrand: Neon Violet / Cyan  ===================== */
+    :root{
+      --bg:#0a0614;          /* backdrop */
+      --panel:#100b26;       /* panels/cards */
+      --ink:#f2efff;         /* main text */
+      --muted:#b9b0e6;       /* secondary text */
+      --brand:#8b5cf6;       /* violet */
+      --brand2:#22d3ee;      /* cyan */
+      --accent:#f43f5e;      /* rose for live */
+      --ok:#34d399;          /* green */
+      --r:16px;
+      --pad:clamp(16px,4vw,22px);
+      --tap:48px;
+      --shadow:0 10px 28px rgba(0,0,0,.35);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; color:var(--ink);
+      background:
+        radial-gradient(900px 600px at 85% -10%, #2d195f 0%, transparent 60%),
+        linear-gradient(170deg,#070315, #0a0614 40%, #0a0614 100%);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+    }
+    .wrap{ max-width:900px; margin-inline:auto; padding: calc(var(--pad) + env(safe-area-inset-top)) var(--pad) calc(var(--pad) + env(safe-area-inset-bottom)); }
+
+    /* =====================  Header  ===================== */
+    header{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:12px; }
+    .brand{ display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--ink); font-weight:900; letter-spacing:.3px }
+    .badge{ width:38px; height:38px; border-radius:12px; 
+      background:conic-gradient(from 210deg,var(--brand),var(--brand2),var(--brand)); 
+      display:grid; place-items:center; box-shadow:var(--shadow) }
+    .badge::before{ content:"▶"; font-size:14px; color:#0a0614; font-weight:900; transform:translateX(1px) }
+    .btn{
+      appearance:none; border:0; border-radius:14px; padding:12px 16px; min-height:var(--tap);
+      display:inline-flex; align-items:center; justify-content:center; gap:8px;
+      font-weight:800; text-decoration:none; cursor:pointer;
+      color:#03121a; background:linear-gradient(135deg,var(--brand), var(--brand2));
+      box-shadow:0 10px 22px rgba(139,92,246,.25);
+      transition:transform .12s ease, filter .12s ease;
+    }
+    .btn:hover{ transform:translateY(-1px); filter:saturate(1.06) }
+    .btn.ghost{ background:transparent; color:var(--ink); border:1px solid rgba(255,255,255,.16); box-shadow:none }
+    .btn.white{ background:#fff; color:#090414; box-shadow:0 10px 22px rgba(255,255,255,.1) }
+
+    /* =====================  Hero  ===================== */
+    .hero{ display:grid; gap:12px; }
+    h1{ font-size: clamp(22px, 6.2vw, 36px); line-height:1.15; margin:6px 0 2px }
+    .lead{ color:#e9e6ff; font-size:clamp(14px,4.2vw,18px); line-height:1.55 }
+    .eyebrow{ display:inline-flex; align-items:center; gap:10px; font-size:12px; color:var(--muted); letter-spacing:.6px; text-transform:uppercase }
+    .live-dot{ width:10px; height:10px; border-radius:50%; background:var(--accent); box-shadow:0 0 0 0 rgba(244,63,94,.6); animation:pulse 1.8s infinite }
+    @keyframes pulse{ 0%{box-shadow:0 0 0 0 rgba(244,63,94,.6)} 70%{box-shadow:0 0 0 10px rgba(244,63,94,0)} 100%{box-shadow:0 0 0 0 rgba(244,63,94,0)} }
+
+    /* =====================  Player  ===================== */
+    .player{
+      position:relative; background:#0b0a1b; border-radius:var(--r); overflow:hidden;
+      border:1px solid rgba(255,255,255,.08); box-shadow:var(--shadow); aspect-ratio:16/9;
+    }
+    video{ width:100%; height:100%; object-fit:cover; display:block; background:#000; filter:saturate(1.06) contrast(1.05) }
+    .hud{ position:absolute; inset:0; pointer-events:none; display:flex; flex-direction:column; justify-content:space-between }
+    .topbar{ display:flex; align-items:center; justify-content:space-between; gap:8px; padding:10px 10px 0 }
+    .pill{
+      background: rgba(0,0,0,.45); backdrop-filter: blur(6px);
+      border:1px solid rgba(255,255,255,.14); color:#efeaff;
+      border-radius:12px; padding:6px 10px; font-weight:800; font-size:13px; letter-spacing:.3px;
+      display:inline-flex; align-items:center; gap:8px;
+    }
+    .watch{ font-variant-numeric:tabular-nums; }
+    .trial{ margin:8px 10px 0; height:8px; border-radius:999px; background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.08); overflow:hidden }
+    .fill{ height:100%; width:0%; background:linear-gradient(90deg,var(--brand2),var(--brand)); box-shadow:0 0 10px rgba(139,92,246,.45); transition:width linear }
+    .overlay{ position:absolute; inset:0; display:grid; place-items:center; background:linear-gradient(180deg, transparent, rgba(0,0,0,.22)); z-index:3 }
+    .play-ui{ display:flex; flex-direction:column; align-items:center; gap:10px; text-align:center; transition:opacity .2s ease, transform .2s ease }
+    .play{
+      width:98px; height:98px; min-width:98px; border-radius:999px; border:0; cursor:pointer;
+      background: radial-gradient(circle at 30% 30%, var(--brand2), var(--brand) 65%, #6e50ff 100%);
+      box-shadow:0 10px 30px rgba(139,92,246,.35), inset 0 -8px 18px rgba(0,0,0,.35);
+      display:grid; place-items:center; touch-action:manipulation;
+    }
+    .play svg{ width:34px; height:34px; transform:translateX(2px) }
+    .hint{ font-weight:800; color:#efeaff; text-shadow:0 2px 8px rgba(0,0,0,.4) }
+    .hidden{ opacity:0; pointer-events:none; transform:translateY(8px) }
+    .blurred video{ filter: blur(2px) brightness(.82) }
+
+    /* =====================  Value cards  ===================== */
+    .cards{ display:grid; gap:12px; margin-top:12px }
+    .card{ background:linear-gradient(180deg, rgba(255,255,255,.05), transparent 60%); border:1px solid rgba(255,255,255,.08); border-radius:var(--r); padding:14px }
+    .card h3{ margin:4px 0 6px; font-size:18px }
+    .card p{ margin:0; color:#e6e2ff; line-height:1.6 }
+
+    /* =====================  Sticky CTA  ===================== */
+    .sticky{
+      position:sticky; bottom:0; z-index:20; margin-top:12px;
+      background: linear-gradient(180deg, rgba(0,0,0,0), rgba(8,6,22,.75) 30%, rgba(8,6,22,.92) 100%);
+      padding:10px 0 0;
+    }
+    .bar{
+      background:linear-gradient(180deg,#160f3a,#0f0a2a);
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:16px;
+      padding:10px; display:flex; gap:10px; align-items:center; justify-content:space-between;
+      box-shadow:var(--shadow)
+    }
+    .bar span{ font-weight:800; color:#efeaff }
+    .bar .btn{ flex:0 0 auto; padding-inline:18px }
+
+    /* =====================  Modal Sheet  ===================== */
+    .modal{ position:fixed; inset:0; background:rgba(6,4,14,.6); backdrop-filter: blur(10px); display:grid; place-items:end center; padding: var(--pad); opacity:0; pointer-events:none; transition:opacity .2s ease; z-index:50 }
+    .modal.open{ opacity:1; pointer-events:auto }
+    .sheet{
+      width:100%; max-width:640px; background:linear-gradient(180deg,#161042,#0f0a2a);
+      border:1px solid rgba(255,255,255,.12); border-radius:22px; padding:16px;
+      transform:translateY(22px); animation:rise .2s ease forwards;
+    }
+    @keyframes rise{ to{ transform:translateY(0) } }
+    .sheet h2{ margin:0 0 8px; font-size:clamp(18px,5.5vw,22px) }
+    .sheet p{ margin:0; color:#dcd7ff; line-height:1.65 }
+    .actions{ display:grid; grid-template-columns:1fr; gap:10px; margin-top:14px }
+    .btn.full{ width:100% }
+    .fine{ margin-top:8px; font-size:12px; color:var(--muted) }
+
+    /* =====================  Activity Toasts (Demo)  ===================== */
+    .toasts{ position:fixed; bottom:16px; left:16px; display:grid; gap:10px; z-index:60 }
+    .toast{
+      display:flex; align-items:center; gap:10px; padding:10px 12px;
+      background:rgba(18,12,46,.92); border:1px solid rgba(255,255,255,.12);
+      border-radius:14px; box-shadow:var(--shadow); transform:translateY(20px); opacity:0;
+      animation:toast-in .25s ease forwards;
+    }
+    .toast .dot{ width:10px; height:10px; border-radius:50%; background:var(--ok); box-shadow:0 0 12px rgba(52,211,153,.5) }
+    .toast .txt{ font-size:13px; line-height:1.35 }
+    .toast .demo{ font-size:10px; letter-spacing:.4px; padding:2px 6px; border-radius:999px; color:#0b0614; background:linear-gradient(90deg,var(--brand),var(--brand2)); font-weight:900 }
+    @keyframes toast-in{ to{ transform:translateY(0); opacity:1 } }
+    .activity-note{
+      display:flex; align-items:center; gap:8px; font-size:12px; color:var(--muted); margin:8px 0 0;
+    }
+
+    /* Motion prefs */
+    @media (prefers-reduced-motion:reduce){
+      .play-ui, .play, .toast{ animation:none !important }
+      .btn, .hidden{ transition:none !important }
+    }
+    @media (min-width:760px){
+      .cards{ grid-template-columns:repeat(3,1fr) }
+      .sheet{ border-radius:24px }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <!-- Header -->
+    <header>
+      <a class="brand" href="#">
+        <span class="badge" aria-hidden="true"></span>
+        <span>ZUZZ.TV</span>
+      </a>
+      <div>
+        <a class="btn ghost" href="#faq">FAQ</a>
+      </div>
+    </header>
+
+    <!-- Hero -->
+    <section class="hero">
+      <div>
+        <div class="eyebrow">
+          <span class="live-dot"></span> NFL • LIVE TODAY
+          <span class="pill" id="kickPill" style="margin-left:8px; display:none;">
+            ⏱️ Kickoff in <span id="kickCountdown" aria-live="polite">--:--:--</span>
+          </span>
+        </div>
+        <!-- DYNAMIC TITLE: change via URL, e.g., ?title=Your%20Custom%20Headline or ?title=Your+Custom+Headline -->
+        <h1 id="dynamicTitle">Watch NFL Games Live on Your Phone</h1>
+        <p class="lead">Tap the player to start a <strong>15-second</strong> preview. When the timer ends, register in seconds to keep watching in HD—no cable required.</p>
+      </div>
+
+      <!-- Player -->
+      <div class="player" id="playerCard" aria-label="Live game player">
+        <video id="video" preload="metadata" playsinline poster="" aria-label="Preview stream">
+          <!-- Use the local file in the same folder -->
+          <source src="flower.mp4" type="video/mp4" />
+          Your browser does not support HTML5 video.
+        </video>
+
+        <!-- HUD -->
+        <div class="hud">
+          <div class="topbar">
+            <div class="pill"><span class="live-dot" style="box-shadow:none"></span> LIVE</div>
+            <div class="pill"><span style="opacity:.8">WATCHING NOW:</span> <span class="watch" id="watchers">72,931</span></div>
+          </div>
+          <div class="trial" aria-hidden="true"><div class="fill" id="trialFill"></div></div>
+        </div>
+
+        <!-- Tap overlay -->
+        <div class="overlay" id="overlay">
+          <div class="play-ui" id="playUI">
+            <button class="play" id="playBtn" aria-label="Play 15-second preview">
+              <svg viewBox="0 0 24 24" fill="#0b0614" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+            </button>
+            <div class="hint">Tap to start your preview</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Value props -->
+    <section class="cards">
+      <div class="card"><h3>All Games, One Login</h3><p>Sunday matchups, primetime, and RedZone in one place. No cable. No fuss.</p></div>
+      <div class="card"><h3>Built for Mobile & TV</h3><p>Fast player, big buttons, crisp on any screen. Cast to TV after registering.</p></div>
+      <div class="card"><h3>Secure Checkout</h3><p>Register on our partner’s encrypted page and stream instantly.</p></div>
+    </section>
+
+    <!-- Activity note (transparent) -->
+    <div class="activity-note" id="activityNote" style="display:none;">
+      <span>🔔</span><span>Showing demo recent-activity popups. Add <code>?activity=off</code> to hide.</span>
+    </div>
+
+    <!-- Sticky bottom CTA -->
+    <div class="sticky">
+      <div class="bar">
+        <span>Ready for the full game?</span>
+        <a class="btn white" data-aff href="#" target="_blank" rel="noopener nofollow">Watch Now — Secure Checkout</a>
+      </div>
+    </div>
+
+    <!-- FAQ -->
+    <section id="faq" class="cards">
+      <div class="card"><h3>Is there a free trial?</h3><p>You get a 15-second instant preview here. Register to unlock full games in HD.</p></div>
+      <div class="card"><h3>Do I need cable?</h3><p>No. Stream from your mobile browser or cast to TV after registering.</p></div>
+      <div class="card"><h3>Can I cancel?</h3><p>Yes. Manage your plan directly on the partner platform after signup.</p></div>
+    </section>
+
+    <footer style="margin-top:10px">
+      <div class="links" style="margin-bottom:6px">
+        <a href="#faq">FAQ</a>
+        <a href="#terms">Terms</a>
+        <a href="#privacy">Privacy</a>
+        <a data-aff href="#" target="_blank" rel="noopener nofollow">Register</a>
+      </div>
+      <p style="margin:6px 0 0; opacity:.9">
+        <strong>Note:</strong> This page provides a promotional preview and links to a partner platform for full live streams. Availability may vary by region.
+      </p>
+    </footer>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal" id="modal" aria-hidden="true">
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+      <h2 id="mTitle">Trial Over — Continue Watching Live</h2>
+      <p>Your 15-second preview ended. Register now to resume in HD with instant access.</p>
+      <div class="actions">
+        <a class="btn full" data-aff id="ctaPrimary" href="#" target="_blank" rel="noopener nofollow">Register &amp; Resume</a>
+        <button class="btn ghost full" id="ctaClose" type="button">Maybe Later</button>
+      </div>
+      <div class="fine">You’ll return to the player after registering.</div>
+    </div>
+  </div>
+
+  <!-- Demo Activity Toasts Container -->
+  <div class="toasts" id="toasts" aria-live="polite"></div>
+
+  <script>
+    (function(){
+      /* ========= ONE SOURCE OF TRUTH FOR AFFILIATE URL ========= */
+      const AFF_URL = "https://billing.zuzz.tv/aff/go/nareshkumar9?i=1862";
+
+      /* ========= Dynamic Headline from URL param ========= */
+      (function setDynamicTitle(){
+        const el = document.getElementById('dynamicTitle');
+        const params = new URLSearchParams(location.search);
+        let t = params.get('title') || params.get('headline') || params.get('h');
+        if (t && el) {
+          t = t.replace(/\+/g, ' ').trim();
+          if (t.length > 120) t = t.slice(0,120) + '…';
+          el.textContent = t;
+          if (t.length > 48) {
+            el.style.fontSize = 'clamp(20px, 5.5vw, 30px)';
+            el.style.lineHeight = '1.2';
+          }
+        }
+      })();
+
+      /* ========= Kickoff Countdown =========
+         Set via ?kickoff=YYYY-MM-DDTHH:MM:SS (local time).
+         If valid, shows a countdown pill. */
+      (function kickoffCountdown(){
+        const pill = document.getElementById('kickPill');
+        const out = document.getElementById('kickCountdown');
+        const q = new URLSearchParams(location.search).get('kickoff');
+        if(!q) return;
+        const target = new Date(q);
+        if (isNaN(target.getTime())) return;
+        pill.style.display = 'inline-flex';
+        const tick = ()=>{
+          const now = new Date();
+          let diff = Math.max(0, target - now);
+          const h = Math.floor(diff/36e5);
+          diff -= h*36e5;
+          const m = Math.floor(diff/6e4);
+          diff -= m*6e4;
+          const s = Math.floor(diff/1e3);
+          out.textContent = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+        };
+        tick(); setInterval(tick, 1000);
+      })();
+
+      const video = document.getElementById('video');
+      const overlay = document.getElementById('overlay');
+      const playBtn = document.getElementById('playBtn');
+      const playUI = document.getElementById('playUI');
+      const fill = document.getElementById('trialFill');
+      const modal = document.getElementById('modal');
+      const ctaClose = document.getElementById('ctaClose');
+      const ctaPrimary = document.getElementById('ctaPrimary');
+      const playerCard = document.getElementById('playerCard');
+      const watchers = document.getElementById('watchers');
+
+      /* ========= Sync all affiliate links ========= */
+      document.querySelectorAll('a[data-aff]').forEach(a=> a.href = AFF_URL);
+
+      let previewSeconds = 15;
+      let started = false;
+      let ended = false;
+
+      /* ========= Live Watch counter (71k–78k, fluctuating) ========= */
+      let count = Math.floor(71000 + Math.random()*7000);
+      const bump = ()=>{
+        const delta = (Math.random() < 0.6 ? 1 : -1) * Math.floor(10 + Math.random()*120);
+        count = Math.max(70010, count + delta);
+        watchers.textContent = count.toLocaleString();
+      };
+      watchers.textContent = count.toLocaleString();
+      setInterval(bump, 1500);
+
+      /* ========= Preview flow ========= */
+      function startPreview(){
+        if(ended){ openModal(); return; }
+        if(started) return;
+        started = true;
+        playUI.classList.add('hidden');
+        setTimeout(()=> overlay.style.display='none', 200);
+
+        video.muted = false;
+        video.currentTime = 0;
+        video.play().catch(()=>{
+          video.muted = true;
+          video.play().catch(()=>{});
+        });
+
+        fill.style.transitionDuration = previewSeconds + 's';
+        requestAnimationFrame(()=> fill.style.width = '100%');
+
+        setTimeout(stopPreview, previewSeconds * 1000);
+      }
+      function stopPreview(){
+        if(ended) return;
+        try{ video.pause(); }catch(e){}
+        playerCard.classList.add('blurred');
+        ended = true;
+        openModal();
+      }
+      function openModal(){
+        modal.classList.add('open');
+        modal.setAttribute('aria-hidden','false');
+        setTimeout(()=> ctaPrimary?.focus(), 60);
+      }
+      function closeModal(){
+        modal.classList.remove('open');
+        modal.setAttribute('aria-hidden','true');
+      }
+
+      playBtn.addEventListener('click', (e)=>{ e.stopPropagation(); startPreview(); });
+      playerCard.addEventListener('click', ()=>{ if(ended) openModal(); });
+      ctaClose.addEventListener('click', closeModal);
+
+      video.addEventListener('ended', ()=>{
+        if(started && !ended){
+          video.currentTime = 0;
+          video.play().catch(()=>{});
+        }
+      });
+
+      /* ========= Demo Recent-Activity Popups (ethical, labeled DEMO) =========
+         Toggle with:
+         ?activity=demo   -> show demo toasts (default if param=demo)
+         ?activity=off    -> hide
+         Omit param       -> hidden
+         Wire to real events by replacing spawnToast() with your backend feed. */
+      const params = new URLSearchParams(location.search);
+      const activityMode = (params.get('activity')||'').toLowerCase();
+      const enableDemo = activityMode === 'demo';
+      const toasts = document.getElementById('toasts');
+      const activityNote = document.getElementById('activityNote');
+      if(enableDemo){
+        activityNote.style.display = 'flex';
+        const firstNames = ["Amina","Noah","Liam","Emma","Olivia","Zayd","Maya","Ethan","Sofia","Youssef","Lucas","Ava","Omar","Léa","Hana","Amine","Sara","Adam","Ilyas","Chloe"];
+        const cities = ["Dallas, TX","Toronto, ON","Paris, FR","Casablanca, MA","Chicago, IL","London, UK","Berlin, DE","Jeddah, SA","NYC, NY","Doha, QA","LA, CA"];
+        const verbs = ["registered","unlocked HD","started a plan","joined the stream","verified account"];
+
+        function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+        function obfuscate(name){
+          // First name + initial (privacy-friendly)
+          return name + " " + String.fromCharCode(65+Math.floor(Math.random()*26)) + ".";
+        }
+        function spawnToast(){
+          const t = document.createElement('div');
+          t.className = 'toast';
+          t.innerHTML = `
+            <span class="dot" aria-hidden="true"></span>
+            <div class="txt"><strong>${obfuscate(pick(firstNames))}</strong> from <strong>${pick(cities)}</strong> just ${pick(verbs)}.</div>
+            <span class="demo" title="Demo data">DEMO</span>
+          `;
+          toasts.appendChild(t);
+          setTimeout(()=>{ t.style.opacity=.98; }, 10);
+          setTimeout(()=>{ t.style.opacity=0; t.style.transform='translateY(10px)'; t.remove(); }, 8000);
+        }
+        // Stagger initial few
+        setTimeout(spawnToast, 1500);
+        setTimeout(spawnToast, 4500);
+        // Then at random cadence
+        setInterval(spawnToast, 7000 + Math.random()*6000);
+      }
+    })();
+  </script>
+</body>
+</html>
