@@ -33,6 +33,7 @@
   .btn{appearance:none;border:0;border-radius:999px;padding:14px 18px;font-weight:700;font-size:16px;cursor:pointer}
   .btn-primary{background:linear-gradient(90deg,var(--brand),var(--brand2));color:#042036;box-shadow:0 8px 24px rgba(36,216,255,.35)}
   .btn-ghost{background:rgba(255,255,255,.12);color:#fff}
+
   .card{background:linear-gradient(180deg,#0f1a3a,#0b1430);border:1px solid rgba(255,255,255,.06);border-radius:20px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.35)}
   .video-wrap{position:relative;background:#000;aspect-ratio:16/9}
   video{width:100%;height:100%;display:block;object-fit:cover;background:#000}
@@ -43,25 +44,34 @@
   .progress{position:absolute;left:0;right:0;top:0;height:4px;background:rgba(255,255,255,.15)}
   .bar{height:100%;width:0%;background:linear-gradient(90deg,var(--brand),var(--brand2));transition:width .25s linear}
   .controls{position:absolute;left:8px;bottom:8px;display:flex;gap:8px;z-index:2}
+
+  /* Tap-to-play cover (kept inside video) */
   .gatecover{position:absolute;inset:0;display:grid;place-items:center;background:linear-gradient(180deg,rgba(3,8,24,.2),rgba(3,8,24,.55));z-index:1}
   .playcta{display:flex;flex-direction:column;align-items:center;gap:10px}
-  .playcta .big{font-size:18px;font-weight:800}
   .playcta .small{font-size:12px;color:#cfe6ff}
-  .gate{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(2,6,23,.7);backdrop-filter:blur(8px);z-index:3}
-  .gate.show{display:flex}
-  .modal{width:min(94%,520px);background:linear-gradient(180deg,#0e1a3e,#0a1533);border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:18px;box-shadow:0 25px 60px rgba(0,0,0,.5);transform:scale(.96);opacity:0;animation:pop .25s ease forwards}
-  @keyframes pop{to{transform:scale(1);opacity:1}}
-  .modal h3{margin:0 0 6px;font-size:20px}
-  .modal p{margin:0 0 14px;color:#cfe6ff;font-size:14px}
-  .trust{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:6px}
-  .trust .t{font-size:12px;color:#9fb0d3;padding:6px 10px;border:1px solid rgba(255,255,255,.1);border-radius:999px}
-  .sticky{position:fixed;left:0;right:0;bottom:0;background:linear-gradient(180deg,rgba(11,18,33,.2),#0b1221);border-top:1px solid rgba(255,255,255,.08);padding:10px;display:flex;gap:10px;align-items:center;justify-content:center;z-index:10}
+
+  /* Sticky CTA */
+  .sticky{position:fixed;left:0;right:0;bottom:0;background:linear-gradient(180deg,rgba(11,18,33,.2),#0b1221);border-top:1px solid rgba(255,255,255,.08);padding:10px;display:flex;gap:10px;align-items:center;justify-content:center;z-index:12}
   .sticky .btn{width:100%;max-width:var(--maxw)}
+
+  /* Global loader */
   .loader{position:fixed;inset:0;display:grid;place-items:center;background:#0b1221;z-index:999}
   .spinner{width:68px;height:68px;border-radius:50%;border:6px solid rgba(255,255,255,.12);border-top-color:var(--brand);animation:spin 1s linear infinite}
   @keyframes spin{to{transform:rotate(360deg)}}
+
   .note{font-size:12px;color:var(--muted);text-align:center;margin-top:8px}
   @media(min-width:780px){ h1{font-size:22px} }
+
+  /* === FULL-SCREEN MODAL (OUTSIDE THE VIDEO) === */
+  .modal-backdrop{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(3,8,24,.76);backdrop-filter:blur(8px);z-index:9999}
+  .modal-backdrop.show{display:flex}
+  .modal-window{width:min(94%,520px);background:linear-gradient(180deg,#0e1a3e,#0a1533);border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:18px;box-shadow:0 25px 60px rgba(0,0,0,.5);transform:translateY(8px) scale(.98);opacity:0;animation:popup .25s ease forwards}
+  @keyframes popup{to{transform:translateY(0) scale(1);opacity:1}}
+  .modal-window h3{margin:0 0 6px;font-size:20px}
+  .modal-window p{margin:0 0 14px;color:#cfe6ff;font-size:14px}
+  .trust{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:6px}
+  .trust .t{font-size:12px;color:#9fb0d3;padding:6px 10px;border:1px solid rgba(255,255,255,.1);border-radius:999px}
+  .close-x{position:absolute;right:14px;top:14px;background:transparent;border:0;color:#9fb0d3;font-size:22px;line-height:1}
 </style>
 </head>
 <body>
@@ -98,29 +108,11 @@
           <button class="btn btn-ghost" id="fullscreenBtn">Fullscreen</button>
         </div>
 
-        <!-- Play overlay (no autoplay) -->
+        <!-- Tap-to-play (no autoplay) -->
         <div class="gatecover" id="cover">
           <div class="playcta">
             <button class="btn btn-primary" id="startBtn">▶ Play 15s Trial</button>
             <div class="small">Starts with sound • No signup required</div>
-          </div>
-        </div>
-
-        <!-- End-of-trial modal -->
-        <div class="gate" id="gate">
-          <div class="modal">
-            <h3>Trial ended — watch the full game on ZUZZ.TV</h3>
-            <p>Start your free trial to unlock the full HD stream, instant replays, and multi-camera angles.</p>
-            <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:8px 0 2px">
-              <button class="btn btn-primary" id="ctaGate">Start Free Trial</button>
-              <button class="btn btn-ghost" id="replayBtn">Replay 15s Trial</button>
-            </div>
-            <div class="trust">
-              <div class="t">SSL Secure</div>
-              <div class="t">No long-term contract</div>
-              <div class="t">Works on iOS & Android</div>
-            </div>
-            <p class="note">Trouble playing <code>.mkv</code>? The full stream plays great on the ZUZZ.TV app & mobile site.</p>
           </div>
         </div>
       </div>
@@ -132,9 +124,28 @@
   <!-- Sticky CTA -->
   <div class="sticky"><button class="btn btn-primary" id="ctaSticky">Start Free Trial — Watch Now</button></div>
 
+  <!-- ===== OUTSIDE FULL-SCREEN MODAL ===== -->
+  <div class="modal-backdrop" id="trialModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" aria-describedby="modalDesc">
+    <div class="modal-window">
+      <button class="close-x" id="closeModal" aria-label="Close">×</button>
+      <h3 id="modalTitle">Trial ended — watch the full game on ZUZZ.TV</h3>
+      <p id="modalDesc">Start your free trial to unlock the full HD stream, instant replays, and multi-camera angles.</p>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:8px 0 2px">
+        <button class="btn btn-primary" id="ctaGate">Start Free Trial</button>
+        <button class="btn btn-ghost" id="replayBtn">Replay 15s Trial</button>
+      </div>
+      <div class="trust">
+        <div class="t">SSL Secure</div>
+        <div class="t">No long-term contract</div>
+        <div class="t">Works on iOS & Android</div>
+      </div>
+      <p class="note" style="margin-top:10px">Trouble playing <code>.mkv</code>? The full stream plays great on the ZUZZ.TV app & mobile site.</p>
+    </div>
+  </div>
+
 <script>
   // ===== Config =====
-  const AFFILIATE_URL = "https://zuzz.tv/?ref=YOUR_AFFILIATE_ID";
+  const AFFILIATE_URL = "https://billing.zuzz.tv/aff/go/nareshkumar9?i=1862";
   const VIDEOS = [
     "/videos/video1.mkv",
     "/videos/video2.mkv",
@@ -150,16 +161,17 @@
   const loader = document.getElementById("loader");
   const app = document.getElementById("app");
   const vid = document.getElementById("vid");
-  const gate = document.getElementById("gate");
   const cover = document.getElementById("cover");
   const startBtn = document.getElementById("startBtn");
   const muteBtn = document.getElementById("muteBtn");
   const fullscreenBtn = document.getElementById("fullscreenBtn");
   const replayBtn = document.getElementById("replayBtn");
-  const headline = document.getElementById("headline");
+  const modal = document.getElementById("trialModal");
+  const closeModalBtn = document.getElementById("closeModal");
   const bar = document.getElementById("bar");
   const countdown = document.getElementById("countdown");
   const viewerChip = document.getElementById("viewerChip");
+  const headline = document.getElementById("headline");
   const ctas = [document.getElementById("ctaTop"), document.getElementById("ctaGate"), document.getElementById("ctaSticky")];
 
   // ===== Helpers =====
@@ -171,12 +183,11 @@
   function chooseRandomNonRepeating(arr, key="__lastVideo"){
     if(!arr.length) return null;
     const last = sessionStorage.getItem(key);
-    let idx = Math.floor(Math.random() * arr.length);
-    // avoid repeating same video consecutively within the session
+    let idx = Math.floor(Math.random()*arr.length);
     if(arr.length > 1 && last){
       let tries = 0;
       while(arr[idx] === last && tries < 8){
-        idx = Math.floor(Math.random() * arr.length);
+        idx = Math.floor(Math.random()*arr.length);
         tries++;
       }
     }
@@ -185,6 +196,10 @@
     return choice;
   }
   function msFmt(s){ s = Math.max(0, s|0); const m = String((s/60)|0).padStart(2,"0"); const sec = String(s%60).padStart(2,"0"); return `${m}:${sec}` }
+  function lockScroll(lock){
+    document.documentElement.style.overflow = lock ? "hidden" : "";
+    document.body.style.overscrollBehavior = lock ? "contain" : "";
+  }
 
   // Fake viewers jitter (~37k)
   let viewers = 36500 + Math.floor(Math.random()*1200) + 800;
@@ -202,52 +217,45 @@
     headline.textContent = customTitle;
   }
 
-  // CTA routing (carry through title as campaign param)
-  ctas.forEach(btn => btn.addEventListener("click", ()=>{
+  // CTA routing
+  function goAff(){
     const u = new URL(AFFILIATE_URL);
     if(customTitle) u.searchParams.set("campaign", customTitle);
     u.searchParams.set("utm_source","lp");
     u.searchParams.set("utm_medium","trial");
     window.location.href = u.toString();
-  }));
+  }
+  ctas.forEach(btn => btn.addEventListener("click", goAff));
 
-  // 2s Loader, then reveal app (no autoplay)
+  // 2s Loader then reveal (no autoplay)
   const startTime = Date.now();
   function showAppAfterMinDelay(){
     const elapsed = Date.now() - startTime;
     const wait = Math.max(0, MIN_LOADING_MS - elapsed);
-    setTimeout(()=>{
-      loader.style.display = "none";
-      app.style.opacity = 1;
-    }, wait);
+    setTimeout(()=>{ loader.style.display="none"; app.style.opacity=1; }, wait);
   }
-  // We don't depend on video metadata; always show after min delay
   showAppAfterMinDelay();
 
-  // Prepare random video now so it's ready when user taps Play
+  // Prepare random video for user tap
   const chosenVideo = chooseRandomNonRepeating(VIDEOS);
   if(chosenVideo){
     vid.src = chosenVideo;
     vid.setAttribute("type","video/x-matroska");
-    // no autoplay; we'll start on user gesture
   }
 
   let trialInterval = null, trialTimeout = null, elapsed = 0;
 
   function startTrial(){
-    // UI updates
     cover.style.display = "none";
-    gate.classList.remove("show");
+    hideModal();
     bar.style.width = "0%";
     elapsed = 0;
     countdown.textContent = "Trial: " + msFmt(TRIAL_SECONDS);
 
-    // Start with sound (allowed due to user gesture)
-    vid.muted = false;
+    vid.muted = false;         // starts with sound (user gesture)
     vid.currentTime = 0;
     vid.play().catch(()=>{ /* if play fails, user can try again */ });
 
-    // Countdown + progress
     clearInterval(trialInterval);
     trialInterval = setInterval(()=>{
       elapsed += 1;
@@ -257,30 +265,39 @@
       if(remain <= 0){ clearInterval(trialInterval); }
     }, 1000);
 
-    // Hard stop after TRIAL_SECONDS
     clearTimeout(trialTimeout);
     trialTimeout = setTimeout(stopTrial, TRIAL_SECONDS * 1000);
   }
 
   function stopTrial(){
-    try { vid.pause(); } catch(e){}
-    gate.classList.add("show");
+    try{ vid.pause(); }catch(e){}
+    showModal();
   }
 
-  // Block seeking beyond elapsed trial time (basic guard)
+  // Disallow skipping beyond elapsed
   vid.addEventListener("seeking", ()=>{
     const maxAllowed = Math.min(TRIAL_SECONDS, elapsed);
     if(vid.currentTime > maxAllowed) vid.currentTime = maxAllowed;
   });
+  vid.addEventListener("ended", stopTrial);
 
-  // If the file ends early, still show the modal
-  vid.addEventListener("ended", ()=>{ stopTrial(); });
+  // Modal controls (outside the video)
+  function showModal(){
+    modal.classList.add("show");
+    lockScroll(true);
+    // Focus the primary CTA for accessibility
+    setTimeout(()=> document.getElementById("ctaGate")?.focus(), 50);
+  }
+  function hideModal(){
+    modal.classList.remove("show");
+    lockScroll(false);
+  }
+  document.getElementById("ctaGate").addEventListener("click", goAff);
+  closeModalBtn.addEventListener("click", hideModal);
 
-  // Controls
+  // Buttons
   startBtn.addEventListener("click", startTrial);
-  replayBtn.addEventListener("click", ()=>{
-    startTrial();
-  });
+  replayBtn.addEventListener("click", startTrial);
   muteBtn.addEventListener("click", ()=>{
     vid.muted = !vid.muted;
     muteBtn.textContent = vid.muted ? "Unmute" : "Mute";
@@ -292,7 +309,7 @@
     else if(el.requestFullscreen){ el.requestFullscreen(); }
   });
 
-  // Safety: hide native controls (we run our own)
+  // Hide native controls
   vid.controls = false;
 </script>
 </body>
