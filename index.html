@@ -1,80 +1,76 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Live Sports — Free Trial</title>
-  <meta name="description" content="Watch a live preview, then continue on ZUZZ.TV with a free trial. No cable. HD stream on your phone." />
-  <meta name="theme-color" content="#0b1221" />
-  <style>
-    :root{
-      --bg:#0b1221; --panel:#101a34; --muted:#9fb0d3; --ink:#eaf2ff; --brand:#24d8ff; --brand2:#7cffc1; --accent:#ff4d4d; --ok:#2dd36f;
-      --r:16px; --pad:16px; --maxw:780px;
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial;color:var(--ink);background:linear-gradient(180deg,#0b1221,#0a1022 50%,#0b1221)}
-    .wrap{max-width:var(--maxw);margin:0 auto;padding:12px 12px 90px}
-    header{display:flex;gap:10px;align-items:center;justify-content:center;padding:12px 0}
-    .logo{font-weight:800;letter-spacing:.3px;background:linear-gradient(90deg,var(--brand),var(--brand2));-webkit-background-clip:text;background-clip:text;color:transparent}
-    h1{margin:8px 0 10px;font-size:20px;line-height:1.25;text-align:center}
-    .chipbar{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:10px 0 14px}
-    .chip{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:rgba(255,255,255,.06);color:var(--muted);font-size:12px}
-    .live{color:#fff;background:linear-gradient(90deg,#ff3b3b,#ff6a6a)}
-    .dot{width:8px;height:8px;border-radius:50%;background:#fff;box-shadow:0 0 0 3px rgba(255,255,255,.25)}
-    .viewer{background:rgba(36,216,255,.18);color:#ccefff}
-
-    .card{background:linear-gradient(180deg,#0f1a3a,#0b1430);border:1px solid rgba(255,255,255,.06);border-radius:20px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.35)}
-    .video-wrap{position:relative;background:#000;aspect-ratio:16/9}
-    video{width:100%;height:100%;display:block;background:#000;object-fit:cover}
-    .overlay-top{position:absolute;top:8px;left:8px;display:flex;gap:8px;align-items:center}
-    .overlay-top .pill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);color:#fff;font-size:12px}
-    .pill.live .red{width:8px;height:8px;border-radius:50%;background:#ff4545;box-shadow:0 0 8px #ff4545}
-    .overlay-bottom{position:absolute;right:8px;bottom:8px;display:flex;gap:8px;align-items:center}
-    .btn{appearance:none;border:0;border-radius:999px;padding:14px 18px;font-weight:700;font-size:16px;cursor:pointer}
-    .btn-primary{background:linear-gradient(90deg,var(--brand),var(--brand2));color:#042036;box-shadow:0 8px 24px rgba(36,216,255,.35)}
-    .btn-ghost{background:rgba(255,255,255,.12);color:#fff}
-    .mute{position:absolute;left:8px;bottom:8px}
-    .countdown{position:absolute;right:8px;top:8px;background:rgba(0,0,0,.55);color:#fff;padding:6px 10px;border-radius:999px;font-weight:700;font-size:12px;backdrop-filter:blur(6px)}
-
-    .gate{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:linear-gradient(180deg,rgba(3,8,24,.2),rgba(3,8,24,.85));backdrop-filter:blur(6px);text-align:center;padding:24px}
-    .gate.show{display:flex}
-    .gate .box{max-width:520px;background:rgba(10,20,50,.6);border:1px solid rgba(255,255,255,.08);padding:20px;border-radius:16px}
-    .gate h3{margin:0 0 8px;font-size:20px}
-    .gate p{margin:0 0 16px;color:var(--muted);font-size:14px}
-
-    .value{display:grid;gap:10px;margin:14px 0;padding:12px;border-radius:16px;background:linear-gradient(180deg,#0f1a3a,#0b1430);border:1px solid rgba(255,255,255,.06)}
-    .value li{list-style:none;display:flex;gap:10px;align-items:flex-start;color:#cfe6ff;font-size:14px}
-    .value svg{flex:0 0 18px;margin-top:2px}
-
-    .trust{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:8px 0 0}
-    .trust .t{font-size:12px;color:var(--muted);padding:6px 10px;border:1px solid rgba(255,255,255,.1);border-radius:999px}
-
-    .sticky{position:fixed;left:0;right:0;bottom:0;background:linear-gradient(180deg,rgba(11,18,33,.2),#0b1221);border-top:1px solid rgba(255,255,255,.08);padding:10px;display:flex;gap:10px;align-items:center;justify-content:center}
-    .sticky .btn{width:100%;max-width:var(--maxw)}
-
-    .loader{position:fixed;inset:0;display:grid;place-items:center;background:#0b1221;z-index:999}
-    .spinner{width:68px;height:68px;border-radius:50%;border:6px solid rgba(255,255,255,.12);border-top-color:var(--brand);animation:spin 1s linear infinite}
-    @keyframes spin{to{transform:rotate(360deg)}}
-
-    .top-cta{display:flex;justify-content:center;margin:12px 0}
-    .note{font-size:12px;color:var(--muted);text-align:center;margin-top:8px}
-    .hidden{display:none !important}
-    @media(min-width:780px){ h1{font-size:22px} }
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Live Game — Free Trial</title>
+<meta name="description" content="Tap to watch a 15s live trial, then continue on ZUZZ.TV with a free trial. No cable. HD on your phone." />
+<meta name="theme-color" content="#0b1221" />
+<style>
+  :root{
+    --bg:#0b1221; --panel:#101a34; --ink:#eaf2ff; --muted:#9fb0d3;
+    --brand:#24d8ff; --brand2:#7cffc1; --accent:#ff4d4d; --ok:#2dd36f;
+    --r:16px; --pad:16px; --maxw:780px;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; background:linear-gradient(180deg,#0b1221,#0a1022 50%,#0b1221);
+    font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial;
+    color:var(--ink);
+  }
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:12px 12px 100px}
+  header{display:flex;justify-content:center;align-items:center;padding:12px 0}
+  .logo{font-weight:800;letter-spacing:.3px;background:linear-gradient(90deg,var(--brand),var(--brand2));
+    -webkit-background-clip:text;background-clip:text;color:transparent}
+  h1{margin:8px 0 10px;font-size:20px;line-height:1.25;text-align:center}
+  .chipbar{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:10px 0 14px}
+  .chip{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:rgba(255,255,255,.06);color:var(--muted);font-size:12px}
+  .live{color:#fff;background:linear-gradient(90deg,#ff3b3b,#ff6a6a)}
+  .dot{width:8px;height:8px;border-radius:50%;background:#fff;box-shadow:0 0 0 3px rgba(255,255,255,.25)}
+  .viewer{background:rgba(36,216,255,.18);color:#ccefff}
+  .top-cta{display:flex;justify-content:center;margin:10px 0}
+  .btn{appearance:none;border:0;border-radius:999px;padding:14px 18px;font-weight:700;font-size:16px;cursor:pointer}
+  .btn-primary{background:linear-gradient(90deg,var(--brand),var(--brand2));color:#042036;box-shadow:0 8px 24px rgba(36,216,255,.35)}
+  .btn-ghost{background:rgba(255,255,255,.12);color:#fff}
+  .card{background:linear-gradient(180deg,#0f1a3a,#0b1430);border:1px solid rgba(255,255,255,.06);border-radius:20px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+  .video-wrap{position:relative;background:#000;aspect-ratio:16/9}
+  video{width:100%;height:100%;display:block;object-fit:cover;background:#000}
+  .overlay-top{position:absolute;top:8px;left:8px;display:flex;gap:8px;align-items:center;z-index:2}
+  .overlay-top .pill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);color:#fff;font-size:12px}
+  .pill.live .red{width:8px;height:8px;border-radius:50%;background:#ff4545;box-shadow:0 0 8px #ff4545}
+  .countdown{position:absolute;right:8px;top:8px;background:rgba(0,0,0,.55);color:#fff;padding:6px 10px;border-radius:999px;font-weight:700;font-size:12px;backdrop-filter:blur(6px);z-index:2}
+  .progress{position:absolute;left:0;right:0;top:0;height:4px;background:rgba(255,255,255,.15)}
+  .bar{height:100%;width:0%;background:linear-gradient(90deg,var(--brand),var(--brand2));transition:width .25s linear}
+  .controls{position:absolute;left:8px;bottom:8px;display:flex;gap:8px;z-index:2}
+  .gatecover{position:absolute;inset:0;display:grid;place-items:center;background:linear-gradient(180deg,rgba(3,8,24,.2),rgba(3,8,24,.55));z-index:1}
+  .playcta{display:flex;flex-direction:column;align-items:center;gap:10px}
+  .playcta .big{font-size:18px;font-weight:800}
+  .playcta .small{font-size:12px;color:#cfe6ff}
+  .gate{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(2,6,23,.7);backdrop-filter:blur(8px);z-index:3}
+  .gate.show{display:flex}
+  .modal{width:min(94%,520px);background:linear-gradient(180deg,#0e1a3e,#0a1533);border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:18px;box-shadow:0 25px 60px rgba(0,0,0,.5);transform:scale(.96);opacity:0;animation:pop .25s ease forwards}
+  @keyframes pop{to{transform:scale(1);opacity:1}}
+  .modal h3{margin:0 0 6px;font-size:20px}
+  .modal p{margin:0 0 14px;color:#cfe6ff;font-size:14px}
+  .trust{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:6px}
+  .trust .t{font-size:12px;color:#9fb0d3;padding:6px 10px;border:1px solid rgba(255,255,255,.1);border-radius:999px}
+  .sticky{position:fixed;left:0;right:0;bottom:0;background:linear-gradient(180deg,rgba(11,18,33,.2),#0b1221);border-top:1px solid rgba(255,255,255,.08);padding:10px;display:flex;gap:10px;align-items:center;justify-content:center;z-index:10}
+  .sticky .btn{width:100%;max-width:var(--maxw)}
+  .loader{position:fixed;inset:0;display:grid;place-items:center;background:#0b1221;z-index:999}
+  .spinner{width:68px;height:68px;border-radius:50%;border:6px solid rgba(255,255,255,.12);border-top-color:var(--brand);animation:spin 1s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .note{font-size:12px;color:var(--muted);text-align:center;margin-top:8px}
+  @media(min-width:780px){ h1{font-size:22px} }
+</style>
 </head>
 <body>
-  <!-- Loader (min 2s) -->
-  <div class="loader" id="loader">
-    <div class="spinner" aria-label="Loading preview…"></div>
-  </div>
+  <!-- 2s Loader -->
+  <div class="loader" id="loader"><div class="spinner" aria-label="Loading…"></div></div>
 
-  <div class="wrap" id="app" style="opacity:0;transition:opacity .4s ease">
-    <header>
-      <div class="logo">ZUZZ.TV</div>
-    </header>
-
-    <h1 id="headline">Live Game Preview — Start Your Free Trial</h1>
+  <div class="wrap" id="app" style="opacity:0;transition:opacity .35s ease">
+    <header><div class="logo">ZUZZ.TV</div></header>
+    <h1 id="headline">Live Game Trial — Start Your Free Trial</h1>
 
     <div class="chipbar">
       <div class="chip live"><span class="dot"></span><strong>LIVE</strong></div>
@@ -83,218 +79,221 @@
       <div class="chip">Cancel anytime</div>
     </div>
 
-    <div class="top-cta">
-      <button class="btn btn-primary" id="ctaTop">Start Free Trial</button>
-    </div>
+    <div class="top-cta"><button class="btn btn-primary" id="ctaTop">Start Free Trial</button></div>
 
     <section class="card">
       <div class="video-wrap" id="videoWrap">
-        <video id="vid" playsinline muted preload="metadata"></video>
+        <div class="progress"><div class="bar" id="bar"></div></div>
+        <video id="vid" preload="metadata" playsinline></video>
 
         <div class="overlay-top">
           <div class="pill live"><span class="red"></span><strong style="letter-spacing:.5px">LIVE</strong></div>
         </div>
 
-        <div class="countdown" id="countdown">Preview: 00:15</div>
+        <div class="countdown" id="countdown" aria-live="polite">Trial: 00:15</div>
 
-        <div class="overlay-bottom">
-          <button class="btn btn-ghost mute" id="muteBtn" aria-pressed="true">Tap for Sound</button>
+        <!-- Controls -->
+        <div class="controls">
+          <button class="btn btn-ghost" id="muteBtn">Mute</button>
           <button class="btn btn-ghost" id="fullscreenBtn">Fullscreen</button>
         </div>
 
-        <!-- Gate after 15s -->
+        <!-- Play overlay (no autoplay) -->
+        <div class="gatecover" id="cover">
+          <div class="playcta">
+            <button class="btn btn-primary" id="startBtn">▶ Play 15s Trial</button>
+            <div class="small">Starts with sound • No signup required</div>
+          </div>
+        </div>
+
+        <!-- End-of-trial modal -->
         <div class="gate" id="gate">
-          <div class="box">
-            <h3>Preview ended — continue on ZUZZ.TV</h3>
-            <p>Sign up now to watch <strong>the full game in HD</strong>, switch cameras, and get live stats.</p>
-            <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:10px 0 2px">
+          <div class="modal">
+            <h3>Trial ended — watch the full game on ZUZZ.TV</h3>
+            <p>Start your free trial to unlock the full HD stream, instant replays, and multi-camera angles.</p>
+            <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:8px 0 2px">
               <button class="btn btn-primary" id="ctaGate">Start Free Trial</button>
-              <button class="btn btn-ghost" id="replayBtn">Replay 15s Preview</button>
+              <button class="btn btn-ghost" id="replayBtn">Replay 15s Trial</button>
             </div>
             <div class="trust">
               <div class="t">SSL Secure</div>
               <div class="t">No long-term contract</div>
               <div class="t">Works on iOS & Android</div>
             </div>
-            <p class="note">Having trouble with the preview? Some phones don’t support <code>.mkv</code> in-browser. The full stream plays perfectly in the ZUZZ.TV app and mobile site.</p>
+            <p class="note">Trouble playing <code>.mkv</code>? The full stream plays great on the ZUZZ.TV app & mobile site.</p>
           </div>
         </div>
       </div>
     </section>
 
-    <ul class="value">
-      <li>
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        Watch any game in HD with zero cable boxes.
-      </li>
-      <li>
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        Instant start — free trial for new members.
-      </li>
-      <li>
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M4 6h16v12H4zM8 10h8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        Stream on your phone, tablet, or TV.
-      </li>
-    </ul>
-
-    <p class="note">By starting a free trial, you agree to the terms on ZUZZ.TV. You can cancel anytime in settings.</p>
+    <p class="note">By starting a free trial, you agree to ZUZZ.TV’s terms. Cancel anytime in settings.</p>
   </div>
 
   <!-- Sticky CTA -->
-  <div class="sticky">
-    <button class="btn btn-primary" id="ctaSticky">Start Free Trial — Watch Now</button>
-  </div>
+  <div class="sticky"><button class="btn btn-primary" id="ctaSticky">Start Free Trial — Watch Now</button></div>
 
-  <script>
-    // ======= Config =======
-    const AFFILIATE_URL = "https://zuzz.tv/?ref=YOUR_AFFILIATE_ID";
-    // Put your actual MKV filenames here (must live under /videos)
-    const VIDEOS = [
-      "/videos/video1.mkv",
-      "/videos/video2.mkv",
-      "/videos/video3.mkv",
-      "/videos/video4.mkv",
-      "/videos/video5.mkv",
-      "/videos/video6.mkv"
-    ];
-    const PREVIEW_SECONDS = 15;
-    const MIN_LOADING_MS = 2000;
+<script>
+  // ===== Config =====
+  const AFFILIATE_URL = "https://zuzz.tv/?ref=YOUR_AFFILIATE_ID";
+  const VIDEOS = [
+    "/videos/video1.mkv",
+    "/videos/video2.mkv",
+    "/videos/video3.mkv",
+    "/videos/video4.mkv",
+    "/videos/video5.mkv",
+    "/videos/video6.mkv"
+  ];
+  const TRIAL_SECONDS = 15;
+  const MIN_LOADING_MS = 2000;
 
-    // ======= Elements =======
-    const loader = document.getElementById("loader");
-    const app = document.getElementById("app");
-    const vid = document.getElementById("vid");
-    const gate = document.getElementById("gate");
-    const countdown = document.getElementById("countdown");
-    const muteBtn = document.getElementById("muteBtn");
-    const fullscreenBtn = document.getElementById("fullscreenBtn");
-    const replayBtn = document.getElementById("replayBtn");
-    const viewerChip = document.getElementById("viewerChip");
-    const headline = document.getElementById("headline");
-    const ctas = [document.getElementById("ctaTop"), document.getElementById("ctaGate"), document.getElementById("ctaSticky")];
+  // ===== Elements =====
+  const loader = document.getElementById("loader");
+  const app = document.getElementById("app");
+  const vid = document.getElementById("vid");
+  const gate = document.getElementById("gate");
+  const cover = document.getElementById("cover");
+  const startBtn = document.getElementById("startBtn");
+  const muteBtn = document.getElementById("muteBtn");
+  const fullscreenBtn = document.getElementById("fullscreenBtn");
+  const replayBtn = document.getElementById("replayBtn");
+  const headline = document.getElementById("headline");
+  const bar = document.getElementById("bar");
+  const countdown = document.getElementById("countdown");
+  const viewerChip = document.getElementById("viewerChip");
+  const ctas = [document.getElementById("ctaTop"), document.getElementById("ctaGate"), document.getElementById("ctaSticky")];
 
-    // ======= Helpers =======
-    function getParam(name){
-      const url = new URL(window.location.href);
-      const v = url.searchParams.get(name);
-      return v ? decodeURIComponent(v.replace(/\+/g, " ")) : null;
+  // ===== Helpers =====
+  function getParam(name){
+    const url = new URL(window.location.href);
+    const v = url.searchParams.get(name);
+    return v ? decodeURIComponent(v.replace(/\+/g," ")) : null;
+  }
+  function chooseRandomNonRepeating(arr, key="__lastVideo"){
+    if(!arr.length) return null;
+    const last = sessionStorage.getItem(key);
+    let idx = Math.floor(Math.random() * arr.length);
+    // avoid repeating same video consecutively within the session
+    if(arr.length > 1 && last){
+      let tries = 0;
+      while(arr[idx] === last && tries < 8){
+        idx = Math.floor(Math.random() * arr.length);
+        tries++;
+      }
     }
-    function chooseRandom(arr){return arr[Math.floor(Math.random() * arr.length)]}
-    function msFmt(s){s = Math.max(0, s|0); const m = String((s/60)|0).padStart(2,"0"); const sec = String(s%60).padStart(2,"0"); return `${m}:${sec}`}
+    const choice = arr[idx];
+    sessionStorage.setItem(key, choice);
+    return choice;
+  }
+  function msFmt(s){ s = Math.max(0, s|0); const m = String((s/60)|0).padStart(2,"0"); const sec = String(s%60).padStart(2,"0"); return `${m}:${sec}` }
 
-    // Viewer count (fake jitter around ~37k)
-    let viewers = 36500 + Math.floor(Math.random()*1200) + 800; // 37k-ish
-    function tickViewers(){
-      const delta = Math.floor(Math.random()*120) - 40; // -40..+79
-      viewers = Math.max(32000, viewers + delta);
-      viewerChip.textContent = viewers.toLocaleString() + " watching now";
-    }
-    setInterval(tickViewers, 3000);
+  // Fake viewers jitter (~37k)
+  let viewers = 36500 + Math.floor(Math.random()*1200) + 800;
+  function tickViewers(){
+    const delta = Math.floor(Math.random()*120) - 40;
+    viewers = Math.max(32000, viewers + delta);
+    viewerChip.textContent = viewers.toLocaleString() + " watching now";
+  }
+  setInterval(tickViewers, 3000);
 
-    // Title from ?title=
-    const customTitle = getParam("title");
-    if(customTitle){
-      document.title = customTitle + " — Free Trial";
-      headline.textContent = customTitle;
-    }
+  // Dynamic title from ?title=
+  const customTitle = getParam("title");
+  if(customTitle){
+    document.title = customTitle + " — Free Trial";
+    headline.textContent = customTitle;
+  }
 
-    // Route all CTAs
-    ctas.forEach(btn => btn.addEventListener("click", () => {
-      // carry through the title if present
-      const u = new URL(AFFILIATE_URL);
-      if(customTitle) u.searchParams.set("campaign", customTitle);
-      window.location.href = u.toString();
-    }));
+  // CTA routing (carry through title as campaign param)
+  ctas.forEach(btn => btn.addEventListener("click", ()=>{
+    const u = new URL(AFFILIATE_URL);
+    if(customTitle) u.searchParams.set("campaign", customTitle);
+    u.searchParams.set("utm_source","lp");
+    u.searchParams.set("utm_medium","trial");
+    window.location.href = u.toString();
+  }));
 
-    // Pick a random video
-    const chosenVideo = chooseRandom(VIDEOS);
+  // 2s Loader, then reveal app (no autoplay)
+  const startTime = Date.now();
+  function showAppAfterMinDelay(){
+    const elapsed = Date.now() - startTime;
+    const wait = Math.max(0, MIN_LOADING_MS - elapsed);
+    setTimeout(()=>{
+      loader.style.display = "none";
+      app.style.opacity = 1;
+    }, wait);
+  }
+  // We don't depend on video metadata; always show after min delay
+  showAppAfterMinDelay();
+
+  // Prepare random video now so it's ready when user taps Play
+  const chosenVideo = chooseRandomNonRepeating(VIDEOS);
+  if(chosenVideo){
     vid.src = chosenVideo;
-    // iOS tip: .mkv often isn't supported; we still try and show gate if it fails
-    vid.setAttribute("type", "video/x-matroska");
+    vid.setAttribute("type","video/x-matroska");
+    // no autoplay; we'll start on user gesture
+  }
 
-    // Show after min 2s (and attempt to start preview)
-    const startTime = Date.now();
-    let previewTimer = null, countdownTimer = null;
+  let trialInterval = null, trialTimeout = null, elapsed = 0;
 
-    function showApp(){
-      const elapsed = Date.now() - startTime;
-      const wait = Math.max(0, MIN_LOADING_MS - elapsed);
-      setTimeout(() => {
-        loader.classList.add("hidden");
-        app.style.opacity = 1;
-        tryAutoPlay();
-      }, wait);
-    }
+  function startTrial(){
+    // UI updates
+    cover.style.display = "none";
+    gate.classList.remove("show");
+    bar.style.width = "0%";
+    elapsed = 0;
+    countdown.textContent = "Trial: " + msFmt(TRIAL_SECONDS);
 
-    // Autoplay muted; if blocked, show a quick tap-to-play
-    function tryAutoPlay(){
-      vid.muted = true;
-      vid.play().then(() => {
-        startPreview();
-      }).catch(() => {
-        // Add a big tap overlay
-        const btn = document.createElement("button");
-        btn.className = "btn btn-primary";
-        btn.textContent = "Tap to Start Preview";
-        Object.assign(btn.style,{position:"absolute",inset:"0",margin:"auto",height:"56px",width:"260px"});
-        document.getElementById("videoWrap").appendChild(btn);
-        btn.addEventListener("click", ()=>{
-          btn.remove();
-          vid.play().then(startPreview).catch(()=>{/* let user try CTA instead */});
-        });
-      });
-    }
+    // Start with sound (allowed due to user gesture)
+    vid.muted = false;
+    vid.currentTime = 0;
+    vid.play().catch(()=>{ /* if play fails, user can try again */ });
 
-    function startPreview(){
-      // Reset any prior timers
-      if(previewTimer) clearTimeout(previewTimer);
-      if(countdownTimer) clearInterval(countdownTimer);
-      gate.classList.remove("show");
-      vid.currentTime = 0;
-      vid.play().catch(()=>{});
-      let remain = PREVIEW_SECONDS;
-      countdown.textContent = "Preview: " + msFmt(remain);
-      countdownTimer = setInterval(()=>{
-        remain--;
-        countdown.textContent = "Preview: " + msFmt(remain);
-        if(remain <= 0){ clearInterval(countdownTimer); }
-      }, 1000);
-      previewTimer = setTimeout(stopPreview, PREVIEW_SECONDS * 1000);
-    }
+    // Countdown + progress
+    clearInterval(trialInterval);
+    trialInterval = setInterval(()=>{
+      elapsed += 1;
+      const remain = Math.max(0, TRIAL_SECONDS - elapsed);
+      countdown.textContent = "Trial: " + msFmt(remain);
+      bar.style.width = ((elapsed / TRIAL_SECONDS) * 100) + "%";
+      if(remain <= 0){ clearInterval(trialInterval); }
+    }, 1000);
 
-    function stopPreview(){
-      vid.pause();
-      gate.classList.add("show");
-    }
+    // Hard stop after TRIAL_SECONDS
+    clearTimeout(trialTimeout);
+    trialTimeout = setTimeout(stopTrial, TRIAL_SECONDS * 1000);
+  }
 
-    // Controls
-    muteBtn.addEventListener("click", ()=>{
-      vid.muted = !vid.muted;
-      const on = !vid.muted;
-      muteBtn.textContent = on ? "Sound On" : "Tap for Sound";
-      muteBtn.setAttribute("aria-pressed", String(on));
-      if(on){ vid.play().catch(()=>{}); }
-    });
+  function stopTrial(){
+    try { vid.pause(); } catch(e){}
+    gate.classList.add("show");
+  }
 
-    fullscreenBtn.addEventListener("click", ()=>{
-      const el = document.getElementById("videoWrap");
-      if(document.fullscreenElement){ document.exitFullscreen(); }
-      else if(el.requestFullscreen){ el.requestFullscreen(); }
-    });
+  // Block seeking beyond elapsed trial time (basic guard)
+  vid.addEventListener("seeking", ()=>{
+    const maxAllowed = Math.min(TRIAL_SECONDS, elapsed);
+    if(vid.currentTime > maxAllowed) vid.currentTime = maxAllowed;
+  });
 
-    replayBtn.addEventListener("click", startPreview);
+  // If the file ends early, still show the modal
+  vid.addEventListener("ended", ()=>{ stopTrial(); });
 
-    // Don’t allow seeking
-    vid.addEventListener("seeking", ()=>{ if(vid.currentTime > PREVIEW_SECONDS) vid.currentTime = 0; });
+  // Controls
+  startBtn.addEventListener("click", startTrial);
+  replayBtn.addEventListener("click", ()=>{
+    startTrial();
+  });
+  muteBtn.addEventListener("click", ()=>{
+    vid.muted = !vid.muted;
+    muteBtn.textContent = vid.muted ? "Unmute" : "Mute";
+    if(!vid.paused){ vid.play().catch(()=>{}); }
+  });
+  fullscreenBtn.addEventListener("click", ()=>{
+    const el = document.getElementById("videoWrap");
+    if(document.fullscreenElement){ document.exitFullscreen(); }
+    else if(el.requestFullscreen){ el.requestFullscreen(); }
+  });
 
-    // Start after metadata or 2s — whichever is later
-    let metaReady = false;
-    vid.addEventListener("loadedmetadata", ()=>{ metaReady = true; showApp(); });
-    // Fallback in case metadata never fires (bad codec on device)
-    setTimeout(()=>{ if(!metaReady) showApp(); }, 800);
-
-    // Safety: hide native controls; we run our own
-    vid.controls = false;
-  </script>
+  // Safety: hide native controls (we run our own)
+  vid.controls = false;
+</script>
 </body>
 </html>
