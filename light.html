@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>NFL PASS — Live Game Preview</title>
+  <meta name="description" content="NFL PASS — Tap to preview live NFL action for 15 seconds. Then unlock HD streaming on mobile & TV cast. No cable required." />
+  <meta name="theme-color" content="#0a0f1a" />
+
+  <style>
+    /* =====================  BRAND — NFL PASS (Dark Stadium)  ===================== */
+    :root{
+      --bg:#090e18;         /* page background */
+      --bg2:#0b1324;        /* gradient depth */
+      --panel:#0f1a30;      /* card */
+      --panel2:#0c1426;     /* subtle alt */
+      --ink:#e8f1ff;        /* text */
+      --muted:#97a7c7;      /* muted text */
+      --brand:#1e90ff;      /* primary (team-adaptive) */
+      --brand2:#7c3aed;     /* secondary (team-adaptive) */
+      --accent:#ff3b3b;     /* live dot */
+      --ok:#22c55e;
+      --r:16px;
+      --pad:clamp(16px,4vw,22px);
+      --tap:48px;
+      --shadow:0 14px 40px rgba(0,0,0,.45);
+      --glass:rgba(255,255,255,.06);
+      --glassBorder:rgba(255,255,255,.12);
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; color:var(--ink); background:radial-gradient(1100px 700px at 75% -10%, #0e1f44 0%, transparent 60%), linear-gradient(180deg, var(--bg), var(--bg2) 60%, var(--bg) 100%);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; overflow-x:hidden;
+      position:relative;
+    }
+
+    /* Stadium grid + lights */
+    .stadium{
+      position:fixed; inset:0; z-index:-1; pointer-events:none; opacity:.25;
+      background:
+        radial-gradient(1000px 600px at 20% -15%, rgba(124,58,237,.25), transparent 60%),
+        radial-gradient(900px 600px at 90% 0%, rgba(30,144,255,.18), transparent 65%),
+        repeating-linear-gradient(90deg, rgba(255,255,255,.05) 0 1px, transparent 1px 60px),
+        repeating-linear-gradient(0deg, rgba(255,255,255,.04) 0 1px, transparent 1px 60px);
+      animation: lights 18s ease-in-out infinite alternate;
+    }
+    @keyframes lights{ from{transform:translate3d(0,0,0) scale(1)} to{transform:translate3d(-2%,1%,0) scale(1.03)} }
+
+    .wrap{ max-width:980px; margin-inline:auto; padding: calc(var(--pad) + env(safe-area-inset-top)) var(--pad) calc(var(--pad) + env(safe-area-inset-bottom)); }
+
+    /* =====================  APP LOADER (Streaming feel)  ===================== */
+    .app-loader{
+      position:fixed; inset:0; display:grid; place-items:center; background:linear-gradient(180deg,#050a14,#0a0f1a 60%);
+      z-index:999; transition: opacity .35s ease, visibility .35s ease; box-shadow:inset 0 0 0 1px rgba(255,255,255,.04);
+    }
+    .app-loader.hidden{ opacity:0; visibility:hidden }
+    .loader-card{
+      width:min(94%,440px);
+      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+      border:1px solid var(--glassBorder); border-radius:18px; padding:20px 22px; text-align:center; box-shadow:var(--shadow);
+    }
+    .logo{
+      display:inline-grid; place-items:center; gap:6px; margin-bottom:8px;
+    }
+    .logo .shield{
+      width:62px; height:62px; border-radius:16px; position:relative; overflow:hidden;
+      background:conic-gradient(from 210deg,var(--brand),var(--brand2),var(--brand));
+      box-shadow:0 16px 30px rgba(30,144,255,.35);
+      animation: float 2.6s ease-in-out infinite;
+    }
+    .logo .shield:before{ content:"🏈"; position:absolute; inset:0; display:grid; place-items:center; font-size:28px; filter:drop-shadow(0 2px 6px rgba(0,0,0,.45)) }
+    @keyframes float{ 0%,100%{ transform: translateY(0) } 50%{ transform: translateY(-6px) } }
+    .eq{ display:flex; gap:6px; justify-content:center; margin-top:8px }
+    .eq span{ width:7px; height:16px; border-radius:7px; background:linear-gradient(180deg,var(--brand2),var(--brand)); animation:bars 1s ease-in-out infinite }
+    .eq span:nth-child(2){animation-delay:.15s}
+    .eq span:nth-child(3){animation-delay:.3s}
+    .eq span:nth-child(4){animation-delay:.45s}
+    @keyframes bars{ 0%,100%{ transform:scaleY(.6) } 50%{ transform:scaleY(1.5) } }
+
+    /* =====================  HEADER  ===================== */
+    header{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px; }
+    .brand{ display:flex; align-items:center; gap:12px; text-decoration:none; color:var(--ink); font-weight:900; letter-spacing:.3px }
+    .badge{ width:44px; height:44px; border-radius:12px; background:conic-gradient(from 210deg,var(--brand),var(--brand2),var(--brand)); display:grid; place-items:center; box-shadow:0 12px 26px rgba(30,144,255,.3) }
+    .badge::before{ content:"🏈"; font-size:20px; transform:translateY(1px) }
+    .nav{ display:flex; gap:8px; align-items:center }
+    .btn{
+      appearance:none; border:0; border-radius:14px; padding:12px 16px; min-height:var(--tap);
+      display:inline-flex; align-items:center; justify-content:center; gap:8px;
+      font-weight:800; text-decoration:none; cursor:pointer;
+      color:#06121f; background:linear-gradient(135deg,var(--brand), var(--brand2));
+      box-shadow:0 12px 26px rgba(30,144,255,.24);
+      transition:transform .12s ease, filter .12s ease, box-shadow .2s ease;
+    }
+    .btn:hover{ transform:translateY(-1px); filter:saturate(1.08); box-shadow:0 16px 34px rgba(124,58,237,.28) }
+    .btn.ghost{ background:transparent; color:var(--ink); border:1px solid var(--glassBorder); box-shadow:none }
+
+    /* Ticket CTA style */
+    .btn.ticket{
+      clip-path: polygon(0 0, calc(100% - 22px) 0, 100% 50%, calc(100% - 22px) 100%, 0 100%, 0 0);
+      position:relative; padding-inline:20px 26px;
+    }
+    .btn.ticket::after{
+      content:""; position:absolute; right:18px; top:50%; width:8px; height:8px; border-right:2px solid #06121f; border-top:2px solid #06121f; transform:translateY(-50%) rotate(45deg);
+    }
+
+    /* =====================  HERO  ===================== */
+    .hero{ display:grid; gap:10px; }
+    .eyebrow{ display:inline-flex; align-items:center; gap:8px; font-size:12px; color:var(--muted); letter-spacing:.6px; text-transform:uppercase }
+    .live-dot{ width:10px; height:10px; border-radius:50%; background:var(--accent); box-shadow:0 0 0 0 rgba(255,59,59,.6); animation:pulse 1.8s infinite }
+    @keyframes pulse{ 0%{box-shadow:0 0 0 0 rgba(255,59,59,.6)} 70%{box-shadow:0 0 0 10px rgba(255,59,59,0)} 100%{box-shadow:0 0 0 0 rgba(255,59,59,0)} }
+    h1{ font-size: clamp(22px, 6.2vw, 38px); line-height:1.15; margin:6px 0 2px }
+    .lead{ color:#d8e7ff; font-size:clamp(14px,4.2vw,17px); line-height:1.55 }
+
+    /* Team picker (color-adaptive idea) */
+    .teams{ display:flex; gap:8px; flex-wrap:wrap; margin-top:2px }
+    .team{
+      background:rgba(255,255,255,.04); border:1px solid var(--glassBorder); color:#e9f2ff;
+      border-radius:999px; padding:6px 10px; font-weight:800; font-size:12px; cursor:pointer;
+      transition:transform .1s ease, background .2s ease;
+    }
+    .team:hover{ transform:translateY(-1px); background:rgba(255,255,255,.08) }
+
+    /* =====================  PLAYER (Jumbotron)  ===================== */
+    .player{
+      position:relative; background:radial-gradient(120% 120% at 50% -20%, #152548 0%, #0b1326 55%, #0a0f1a 100%);
+      border-radius:24px; overflow:hidden; border:1px solid var(--glassBorder); box-shadow:var(--shadow); aspect-ratio:16/9;
+    }
+    .bezel{ position:absolute; inset:0; pointer-events:none; background:linear-gradient(180deg, rgba(255,255,255,.06), transparent 30%, transparent 70%, rgba(255,255,255,.04)); }
+    video{ width:100%; height:100%; object-fit:cover; display:block; background:#000; filter:saturate(1.06) contrast(1.05) }
+    .hud{ position:absolute; inset:0; pointer-events:none; display:flex; flex-direction:column; justify-content:space-between }
+    .topbar{ display:flex; align-items:center; justify-content:space-between; gap:8px; padding:10px 10px 0 }
+    .pill{
+      background: rgba(0,0,0,.45); backdrop-filter: blur(6px);
+      border:1px solid var(--glassBorder); color:#e6efff;
+      border-radius:12px; padding:6px 10px; font-weight:900; font-size:13px; letter-spacing:.3px;
+      display:inline-flex; align-items:center; gap:6px;
+    }
+    .watch{ font-variant-numeric:tabular-nums; }
+    .trial{ margin:8px 10px 0; height:8px; border-radius:999px; background:rgba(255,255,255,.08); border:1px solid var(--glassBorder); overflow:hidden }
+    .fill{ height:100%; width:0%; background:linear-gradient(90deg,var(--brand2),var(--brand)); box-shadow:0 0 10px rgba(30,144,255,.45); transition:width linear }
+
+    .overlay{ position:absolute; inset:0; display:grid; place-items:center; background:linear-gradient(180deg, transparent, rgba(0,0,0,.22)); z-index:3 }
+    .play-ui{ display:flex; flex-direction:column; align-items:center; gap:10px; text-align:center; transition:opacity .2s ease, transform .2s ease }
+    .play{
+      width:104px; height:104px; min-width:104px; border-radius:999px; border:0; cursor:pointer;
+      background: radial-gradient(circle at 30% 30%, var(--brand2), var(--brand) 70%, #0bb3ff 100%);
+      box-shadow:0 16px 42px rgba(30,144,255,.38), inset 0 -10px 18px rgba(0,0,0,.35);
+      display:grid; place-items:center; touch-action:manipulation; transform: translateZ(0);
+      transition: transform .1s ease, filter .15s ease;
+    }
+    .play:hover{ transform: translateY(-2px) scale(1.02); filter:saturate(1.08) }
+    .play svg{ width:38px; height:38px; transform:translateX(2px) }
+    .hint{ font-weight:900; color:#eaf1ff; text-shadow:0 2px 8px rgba(0,0,0,.4) }
+    .hidden{ opacity:0; pointer-events:none; transform:translateY(8px) }
+
+    .blurred video{ filter: blur(2px) brightness(.82) }
+
+    /* Buffering layer */
+    .buffering{
+      position:absolute; inset:0; display:none; place-items:center; z-index:4;
+      background: radial-gradient(60% 60% at 50% 50%, rgba(0,0,0,.35), transparent 60%); pointer-events:none;
+    }
+    .buffering.show{ display:grid; }
+    .spinner{
+      width:66px; height:66px; border-radius:50%; border:4px solid rgba(255,255,255,.18); border-top-color:var(--brand2);
+      animation: spin 1s linear infinite; margin:auto;
+    }
+    @keyframes spin{ to{ transform:rotate(360deg) } }
+    .buffering .msg{ margin-top:10px; font-weight:900; color:#e0ebff; text-shadow:0 2px 8px rgba(0,0,0,.5); text-align:center }
+
+    /* =====================  VALUE / HOW IT WORKS / PLANS  ===================== */
+    .grid{ display:grid; gap:12px; margin-top:12px }
+    .card{ background:linear-gradient(180deg, rgba(255,255,255,.05), transparent 60%); border:1px solid var(--glassBorder); border-radius:var(--r); padding:14px }
+    .card h3{ margin:4px 0 6px; font-size:18px }
+    .card p{ margin:0; color:#d6e3ff; line-height:1.6 }
+
+    .how{ display:grid; grid-template-columns:1fr; gap:10px; }
+    .step{ display:flex; gap:10px; align-items:flex-start; background:linear-gradient(180deg, rgba(255,255,255,.04), transparent); border:1px solid var(--glassBorder); border-radius:14px; padding:12px }
+    .num{ width:30px; height:30px; border-radius:10px; flex:0 0 30px; display:grid; place-items:center; font-weight:900; color:#06121f; background:linear-gradient(135deg,var(--brand2),var(--brand)); box-shadow:0 8px 20px rgba(30,144,255,.24) }
+
+    .plans{ display:grid; grid-template-columns:1fr; gap:10px }
+    .plan{
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      border:1px solid var(--glassBorder); border-radius:14px; padding:12px;
+    }
+    .price{ font-weight:900; font-size:18px; color:#dff5ff }
+    .tag{ font-size:12px; font-weight:900; color:#0d2019; background:linear-gradient(135deg,#34d399,#22d3ee); padding:4px 8px; border-radius:999px; border:1px solid rgba(255,255,255,.18) }
+
+    /* =====================  TRUST + STATS  ===================== */
+    .trust{ display:grid; gap:10px; margin-top:12px }
+    .trust-row{ display:flex; gap:10px; align-items:center; justify-content:space-between; flex-wrap:wrap; background:linear-gradient(180deg, rgba(255,255,255,.05), transparent); border:1px solid var(--glassBorder); border-radius:var(--r); padding:10px 12px }
+    .chip{ display:inline-flex; align-items:center; gap:8px; padding:8px 10px; border-radius:999px; background:rgba(0,0,0,.35); border:1px solid var(--glassBorder); font-weight:800; font-size:13px }
+    .dot{ width:10px; height:10px; border-radius:50%; background:var(--ok); box-shadow:0 0 10px rgba(34,197,94,.6) }
+
+    /* =====================  STICKY TICKET BAR  ===================== */
+    .sticky{ position:sticky; bottom:0; z-index:20; margin-top:12px; background: linear-gradient(180deg, rgba(0,0,0,0), rgba(7,10,20,.78) 30%, rgba(7,10,20,.95) 100%); padding:10px 0 0 }
+    .bar{ background:linear-gradient(180deg,#131b34,#0d1428); border:1px solid var(--glassBorder); border-radius:16px; padding:10px; display:flex; gap:10px; align-items:center; justify-content:space-between; box-shadow:var(--shadow) }
+    .bar span{ font-weight:900; color:#e8ecff }
+    .bar .btn{ flex:0 0 auto; padding-inline:18px }
+
+    /* =====================  MODAL  ===================== */
+    .modal{ position:fixed; inset:0; background:rgba(6,10,26,.6); backdrop-filter: blur(12px); display:grid; place-items:end center; padding: var(--pad); opacity:0; pointer-events:none; transition:opacity .2s ease; z-index:50 }
+    .modal.open{ opacity:1; pointer-events:auto }
+    .sheet{ width:100%; max-width:680px; background:linear-gradient(180deg,#131f42,#0d152e); border:1px solid var(--glassBorder); border-radius:22px; padding:16px; transform:translateY(22px); animation:rise .2s ease forwards; box-shadow:0 20px 50px rgba(0,0,0,.5) }
+    @keyframes rise{ to{ transform:translateY(0) } }
+    .sheet h2{ margin:0 0 8px; font-size:clamp(18px,5.5vw,24px) }
+    .sheet p{ margin:0; color:#cfe0ff; line-height:1.65 }
+    .perks{ display:grid; gap:8px; margin:12px 0 0 }
+    .perk{ display:flex; align-items:center; gap:8px; font-weight:800; color:#eaf1ff }
+    .tick{ width:18px; height:18px; border-radius:6px; background:linear-gradient(135deg,#34d399,#22d3ee); display:grid; place-items:center; color:#032026; font-weight:900; font-size:12px }
+    .actions{ display:grid; grid-template-columns:1fr; gap:10px; margin-top:14px }
+    .btn.full{ width:100% }
+    .fine{ margin-top:8px; font-size:12px; color:var(--muted) }
+
+    /* =====================  FOOTER  ===================== */
+    footer{ margin:18px 0 6px; color:var(--muted); font-size:13px }
+    .links{ display:flex; flex-wrap:wrap; gap:12px }
+    .links a{ color:#cfe0ff; text-decoration:none; border-bottom:1px dashed rgba(207,224,255,.3) }
+
+    /* Motion accessibility */
+    @media (prefers-reduced-motion:reduce){
+      .app-loader, .spinner, .eq span, .badge, .stadium{ animation:none !important }
+      .btn, .hidden{ transition:none !important }
+    }
+    @media (min-width:760px){
+      .grid.three{ grid-template-columns:repeat(3,1fr) }
+      .how{ grid-template-columns:1fr 1fr }
+      .sheet{ border-radius:24px }
+    }
+  </style>
+</head>
+<body>
+  <div class="stadium" aria-hidden="true"></div>
+
+  <!-- App Loader -->
+  <div class="app-loader" id="appLoader" aria-hidden="false">
+    <div class="loader-card">
+      <div class="logo">
+        <div class="shield"></div>
+        <div style="font-weight:1000; letter-spacing:.6px; font-size:20px">NFL PASS</div>
+      </div>
+      <div style="opacity:.9">Initializing secure preview…</div>
+      <div class="eq" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <!-- Header -->
+    <header>
+      <a class="brand" href="#">
+        <span class="badge" aria-hidden="true"></span>
+        <span>NFL PASS</span>
+      </a>
+      <nav class="nav">
+        <a class="btn ghost" href="#how">How it works</a>
+        <a class="btn ticket" data-aff href="#" target="_blank" rel="noopener nofollow">Get Your Game Ticket</a>
+      </nav>
+    </header>
+
+    <!-- Hero -->
+    <section class="hero">
+      <div class="eyebrow"><span class="live-dot"></span> LIVE WEEK — KICKOFF TODAY</div>
+      <h1 id="headline">Your Mobile Ticket to Live NFL</h1>
+      <p class="lead">Tap play to watch a <strong>15-second</strong> live preview. Then unlock HD streaming on your phone with instant access & TV cast.</p>
+
+      <!-- Team quick-pick (changes page accent) -->
+      <div class="teams" aria-label="Quick team theme">
+        <button class="team" data-colors="#c60c30,#00338d">Chiefs</button>
+        <button class="team" data-colors="#041e42,#869397">Cowboys</button>
+        <button class="team" data-colors="#aa0000,#b3995d">49ers</button>
+        <button class="team" data-colors="#004c54,#a5acaf">Eagles</button>
+        <button class="team" data-colors="#241773,#9e7cff">Ravens</button>
+      </div>
+    </section>
+
+    <!-- Player -->
+    <section class="player" id="playerCard" aria-label="Live game preview player">
+      <div class="bezel" aria-hidden="true"></div>
+      <video id="video" preload="metadata" playsinline>
+        <source src="flower.mp4" type="video/mp4" />
+        Your browser does not support HTML5 video.
+      </video>
+
+      <!-- HUD -->
+      <div class="hud">
+        <div class="topbar">
+          <div class="pill"><span class="live-dot" style="box-shadow:none"></span> LIVE</div>
+          <div class="pill"><span style="opacity:.8">WATCHING NOW:</span> <span class="watch" id="watchers">72,931</span></div>
+        </div>
+        <div class="trial" aria-hidden="true"><div class="fill" id="trialFill"></div></div>
+      </div>
+
+      <!-- Buffering -->
+      <div class="buffering" id="buffering">
+        <div style="display:flex; flex-direction:column; align-items:center;">
+          <div class="spinner" aria-hidden="true"></div>
+          <div class="msg">Fetching Live Feed…</div>
+        </div>
+      </div>
+
+      <!-- Tap overlay -->
+      <div class="overlay" id="overlay">
+        <div class="play-ui" id="playUI">
+          <button class="play" id="playBtn" aria-label="Play 15-second preview">
+            <svg viewBox="0 0 24 24" fill="#06121b" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+          </button>
+          <div class="hint">Tap to start your preview</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Value / How it works / Plans -->
+    <section class="grid three">
+      <div class="card">
+        <h3>All Games, One Login</h3>
+        <p>Sunday slate, primetime, and RedZone in one place. No cable. No fuss.</p>
+      </div>
+      <div class="card">
+        <h3>Made for Phones</h3>
+        <p>Fast player, big buttons, clean UI. Looks crisp on any screen size.</p>
+      </div>
+      <div class="card">
+        <h3>Secure Checkout</h3>
+        <p>Register on our partner’s encrypted page with instant activation.</p>
+      </div>
+    </section>
+
+    <section id="how" class="grid">
+      <div class="how">
+        <div class="step"><div class="num">1</div><div><strong>Preview live</strong><span style="display:block;color:#cfe0ff">Hit play for a 15-second sample—no signup needed.</span></div></div>
+        <div class="step"><div class="num">2</div><div><strong>Choose your pass</strong><span style="display:block;color:#cfe0ff">Tonight, All Sunday, or Full Season.</span></div></div>
+        <div class="step"><div class="num">3</div><div><strong>Stream in HD</strong><span style="display:block;color:#cfe0ff">Mobile first with smooth TV casting.</span></div></div>
+        <div class="step"><div class="num">4</div><div><strong>Cancel anytime</strong><span style="display:block;color:#cfe0ff">No contracts. Manage from your account.</span></div></div>
+      </div>
+
+      <div class="plans">
+        <div class="plan">
+          <div>
+            <div style="font-weight:900">Tonight Pass</div>
+            <div style="font-size:13px;color:#b5c5e6">One live game. Best for a quick watch.</div>
+          </div>
+          <div class="price">$6.99</div>
+          <a class="btn ticket" data-aff href="#" target="_blank" rel="noopener nofollow">Unlock</a>
+        </div>
+        <div class="plan">
+          <div>
+            <div style="font-weight:900">All-Sunday Pass <span class="tag">Popular</span></div>
+            <div style="font-size:13px;color:#b5c5e6">All Sunday games + RedZone.</div>
+          </div>
+          <div class="price">$14.99</div>
+          <a class="btn ticket" data-aff href="#" target="_blank" rel="noopener nofollow">Unlock</a>
+        </div>
+        <div class="plan">
+          <div>
+            <div style="font-weight:900">Season Pass</div>
+            <div style="font-size:13px;color:#b5c5e6">Every week, every game.</div>
+          </div>
+          <div class="price">$79.99</div>
+          <a class="btn ticket" data-aff href="#" target="_blank" rel="noopener nofollow">Unlock</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Trust & Stats -->
+    <section class="trust">
+      <div class="trust-row">
+        <div class="chip"><span class="dot"></span> Servers: Healthy</div>
+        <div class="chip">AES-256 Secure</div>
+        <div class="chip">Instant Access</div>
+        <div class="chip">Mobile + TV Cast</div>
+      </div>
+    </section>
+
+    <!-- Sticky ticket -->
+    <div class="sticky">
+      <div class="bar">
+        <span>Ready to watch the full game?</span>
+        <a class="btn ticket" data-aff href="#" target="_blank" rel="noopener nofollow">Get Your NFL PASS</a>
+      </div>
+    </div>
+
+    <footer>
+      <div class="links">
+        <a href="#how">How it works</a>
+        <a href="#plans">Plans</a>
+        <a href="#terms">Terms</a>
+        <a href="#privacy">Privacy</a>
+        <a data-aff href="#" target="_blank" rel="noopener nofollow">Register</a>
+      </div>
+      <p style="margin:6px 0 0; opacity:.9">
+        <strong>Note:</strong> This page offers a promotional preview and links to a partner platform for full live streams. Availability may vary by region.
+      </p>
+    </footer>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal" id="modal" aria-hidden="true">
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+      <h2 id="mTitle">Preview Ended — Your NFL PASS Awaits</h2>
+      <p>Your 15-second preview is over. Choose a pass to resume instantly in HD.</p>
+      <div class="perks">
+        <div class="perk"><span class="tick">✓</span> HD + RedZone (with eligible plans)</div>
+        <div class="perk"><span class="tick">✓</span> Works on mobile & TV cast</div>
+        <div class="perk"><span class="tick">✓</span> Cancel anytime</div>
+      </div>
+      <div class="actions">
+        <a class="btn full" data-aff id="ctaPrimary" href="#" target="_blank" rel="noopener nofollow">Unlock & Resume</a>
+        <button class="btn ghost full" id="ctaClose" type="button">Maybe Later</button>
+      </div>
+      <div class="fine">You’ll return to the player after registering.</div>
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      /* ================== CONFIG ================== */
+      const DEFAULT_AFF = "https://billing.zuzz.tv/aff/go/nareshkumar9?i=1862"; // replace if needed
+
+      /* ================== ELEMENTS ================== */
+      const qs = (s,root=document)=>root.querySelector(s);
+      const qsa = (s,root=document)=>Array.from(root.querySelectorAll(s));
+
+      const appLoader = qs('#appLoader');
+      const video = qs('#video');
+      const overlay = qs('#overlay');
+      const playBtn = qs('#playBtn');
+      const playUI = qs('#playUI');
+      const fill = qs('#trialFill');
+      const modal = qs('#modal');
+      const ctaClose = qs('#ctaClose');
+      const ctaPrimary = qs('#ctaPrimary');
+      const playerCard = qs('#playerCard');
+      const watchers = qs('#watchers');
+      const buffering = qs('#buffering');
+      const headline = qs('#headline');
+
+      /* ================== APP LOADER ================== */
+      window.addEventListener('load', ()=> {
+        setTimeout(()=> appLoader.classList.add('hidden'), 600);
+      });
+
+      /* ================== TEAM COLOR THEMER ================== */
+      qsa('.team').forEach(btn=>{
+        btn.addEventListener('click', ()=>{
+          const [c1,c2] = (btn.dataset.colors||'').split(',');
+          if(c1 && c2){
+            document.documentElement.style.setProperty('--brand', c1.trim());
+            document.documentElement.style.setProperty('--brand2', c2.trim());
+            headline.textContent = `Watch ${btn.textContent.trim()} Live — NFL PASS`;
+          }
+        });
+      });
+
+      /* ================== WATCHER COUNTER ================== */
+      let count = Math.floor(71000 + Math.random()*9000);
+      function bump(){
+        const delta = (Math.random() < 0.6 ? 1 : -1) * Math.floor(10 + Math.random()*140);
+        count = Math.max(70010, count + delta);
+        watchers.textContent = count.toLocaleString();
+      }
+      watchers.textContent = count.toLocaleString();
+      setInterval(bump, 1500);
+
+      /* ================== AFFILIATE SYNC (UTM passthrough) ================== */
+      const params = new URLSearchParams(location.search);
+      const utm = [];
+      ['utm_source','utm_medium','utm_campaign','utm_term','utm_content'].forEach(k=>{
+        if(params.get(k)) utm.push(`${k}=${encodeURIComponent(params.get(k))}`);
+      });
+      const AFF_URL = DEFAULT_AFF + (utm.length ? (DEFAULT_AFF.includes('?') ? '&' : '?') + utm.join('&') : '');
+      qsa('[data-aff]').forEach(a=> a.href = AFF_URL);
+
+      /* ================== PREVIEW FLOW (15 s) ================== */
+      let previewSeconds = 15;
+      let started = false;
+      let ended = false;
+
+      function startPreview(){
+        if(ended){ openModal(); return; }
+        if(started) return;
+        started = true;
+
+        // Hide overlay
+        playUI.classList.add('hidden');
+        setTimeout(()=> overlay.style.display='none', 220);
+
+        // Buffering animation & playback
+        showBuffer(true);
+        video.muted = false;
+        video.currentTime = 0;
+        const tryPlay = () => video.play().catch(()=>{
+          video.muted = true;
+          return video.play().catch(()=>{});
+        });
+        tryPlay().finally(()=> setTimeout(()=> showBuffer(false), 1000));
+
+        // Fill bar animation
+        fill.style.transitionDuration = previewSeconds + 's';
+        requestAnimationFrame(()=> fill.style.width = '100%');
+
+        // Stop after N seconds
+        setTimeout(stopPreview, previewSeconds * 1000);
+      }
+
+      function stopPreview(){
+        if(ended) return;
+        try{ video.pause(); }catch(e){}
+        playerCard.classList.add('blurred');
+        ended = true;
+        openModal();
+      }
+
+      function openModal(){
+        modal.classList.add('open');
+        modal.setAttribute('aria-hidden','false');
+        setTimeout(()=> ctaPrimary?.focus(), 60);
+      }
+
+      function closeModal(){
+        modal.classList.remove('open');
+        modal.setAttribute('aria-hidden','true');
+      }
+
+      function showBuffer(on){
+        buffering.classList.toggle('show', !!on);
+      }
+
+      // Interactions
+      playBtn.addEventListener('click', (e)=>{ e.stopPropagation(); startPreview(); });
+      playerCard.addEventListener('click', ()=>{ if(ended) openModal(); });
+      ctaClose.addEventListener('click', closeModal);
+
+      // Video buffering status
+      video.addEventListener('waiting', ()=> showBuffer(true));
+      video.addEventListener('playing', ()=> showBuffer(false));
+      video.addEventListener('seeked', ()=> showBuffer(false));
+      video.addEventListener('ended', ()=>{
+        if(started && !ended){
+          video.currentTime = 0; video.play().catch(()=>{});
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
