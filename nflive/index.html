@@ -304,6 +304,32 @@
     </div>
   </div>
 </div>
+<script>
+  // Dynamic page/video title from ?title=...
+  (function () {
+    const p = new URLSearchParams(location.search);
+    const raw = p.get('title');
+    if (!raw) return;
+
+    // Decode + clean (handles -, _, and + -> spaces)
+    const decode = s => {
+      try { return decodeURIComponent(s.replace(/\+/g, ' ')); } catch { return s; }
+    };
+    const clean = s => s
+      .replace(/[_-]+/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .slice(0, 140); // keep it reasonable
+
+    const title = clean(decode(raw));
+    if (!title) return;
+
+    // Update document <title> and the hero <h1>
+    document.title = title;
+    const h1 = document.querySelector('.hero h1');
+    if (h1) h1.textContent = title;
+  })();
+</script>
 
 <script>
   /* ===== VIDEO ROTATION: video1.mp4 ... videoN.mp4 ===== */
@@ -477,4 +503,5 @@ document.querySelectorAll('#plansGrid .choose').forEach(btn=>{
 </script>
 </body>
 </html>
+
 
