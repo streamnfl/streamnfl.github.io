@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Live Game — Watch Now</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0c0616; --bg2:#140a22; --muted:#b4a9c9; --text:#f6f3ff;
+    --accent:#a96fff; --accent2:#d68cff; --blue:#6f84ff;
+    --card:#1d1630; --card-b:#241a3a; --shadow:0 10px 30px rgba(0,0,0,.35);
+    --radius:16px;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; color:var(--text);
+    font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+    background:
+      radial-gradient(1200px 600px at 20% -10%, #2a0d5e 0%, transparent 60%),
+      radial-gradient(1000px 600px at 110% 20%, #4c138b 0%, transparent 60%),
+      linear-gradient(180deg,var(--bg) 0%, var(--bg2) 100%);
+    overflow-x:hidden;
+  }
+  body.modal-open{overflow:hidden}
+  a{color:inherit}
+
+  .container{max-width:1100px;margin:0 auto;padding:0 16px}
+  .hero{padding:18px 0 20px;text-align:center}
+  .hero h1{
+    margin:0 0 10px;
+    font-family:"Bebas Neue", Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
+    font-size:clamp(30px,7.6vw,64px);
+    letter-spacing:.7px; text-transform:uppercase; line-height:1;
+    text-shadow:0 10px 34px rgba(189,128,255,.55);
+  }
+  .player{
+    width:100%; max-width:1100px; aspect-ratio:16/9;
+    border-radius:var(--radius); background:#000; overflow:hidden;
+    border:1px solid rgba(255,255,255,.08); box-shadow:var(--shadow); margin:0 auto;
+    position:relative;
+  }
+  video{width:100%;height:100%;display:block;background:#000;object-fit:cover}
+  .hint, .unmute{
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    padding:8px; text-align:center; font-size:clamp(14px,2.6vw,20px);
+  }
+  .hint{color:#e5e7eb;opacity:.75; pointer-events:none}
+  .unmute{display:none; pointer-events:auto}
+  .unmute button{
+    background:linear-gradient(135deg,var(--blue),#a8b2ff);
+    color:#fff; border:0; padding:10px 14px; border-radius:12px; font-weight:800; cursor:pointer;
+    box-shadow:0 8px 24px rgba(108,120,255,.45)
+  }
+
+  section{scroll-margin-top:80px}
+  .section{padding:28px 0}
+  .lead{text-align:center; max-width:900px; margin:0 auto; color:#e9e2ff; font-size:clamp(16px,2.9vw,20px); opacity:.95}
+
+  .features{display:grid; gap:14px; margin-top:18px; grid-template-columns:repeat(3,minmax(0,1fr))}
+  @media (max-width:900px){ .features{grid-template-columns:1fr} }
+  .feature{background:linear-gradient(180deg,var(--card) 0%, var(--card-b) 100%); border:1px solid rgba(255,255,255,.10); border-radius:14px; padding:16px; box-shadow:var(--shadow)}
+  .feature h3{margin:0 0 6px;font-size:clamp(18px,3.6vw,22px)}
+  .feature p{margin:0;color:#d8cfff}
+
+  .columns{display:grid; gap:16px; margin-top:18px; grid-template-columns:repeat(2,minmax(0,1fr))}
+  @media (max-width:900px){ .columns{grid-template-columns:1fr} }
+  .card{background:linear-gradient(180deg,var(--card) 0%, var(--card-b) 100%); border:1px solid rgba(255,255,255,.10); border-radius:14px; padding:18px; box-shadow:var(--shadow)}
+  .card h3{margin:0 0 8px}
+  .bullets{margin:0;padding-left:18px;color:#d8cfff}
+  .bullets li{margin:6px 0}
+
+  .faq{padding:28px 0 60px}
+  .faq h2{text-align:center;margin:0 0 16px;font-size:clamp(24px,6vw,38px)}
+  details{background:linear-gradient(180deg,var(--card) 0%, var(--card-b) 100%); border:1px solid rgba(255,255,255,.10); border-radius:14px;padding:14px 18px;margin:10px auto;max-width:920px}
+  summary{cursor:pointer;font-weight:700}
+  details p{color:#d8cfff;margin:10px 0 0}
+
+  .modal{
+    position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+    background:rgba(12,6,22,.60);backdrop-filter:blur(12px) saturate(160%);
+    -webkit-backdrop-filter:blur(12px) saturate(160%);
+    z-index:1000;opacity:0;pointer-events:none;transition:opacity .3s ease;
+  }
+  .modal.show{opacity:1;pointer-events:auto}
+  .modal-card{
+    width:min(760px,92%);
+    background:linear-gradient(180deg,#1a1327 0%,#141024 100%);
+    border:1px solid rgba(255,255,255,.1);
+    border-radius:22px;
+    padding:22px 18px;
+    box-shadow:0 20px 50px rgba(0,0,0,.45);
+    position:relative
+  }
+  .pop{transform:translateY(16px) scale(.98);animation:popIn .4s ease forwards}
+  @keyframes popIn{to{transform:translateY(0) scale(1)}}
+  .modal h3{margin:6px 0 10px;font-size:clamp(20px,5.6vw,34px);text-align:center}
+  .modal p{margin:0 0 14px;color:var(--muted);text-align:center}
+  .actions{display:flex;gap:12px;justify-content:center;margin-top:8px;flex-wrap:wrap}
+  .btn{display:inline-block;padding:12px 16px;border-radius:12px;font-weight:800;text-decoration:none;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#210b36;box-shadow:0 12px 36px rgba(168,111,255,.55)}
+
+  .plans-headline{font-weight:800;text-align:center;margin:8px 0 8px;font-size:clamp(18px,4.6vw,28px)}
+  .grid{display:grid;gap:14px;grid-template-columns:repeat(3,minmax(0,1fr));margin-top:10px}
+  @media (max-width:860px){.grid{grid-template-columns:1fr}}
+  .plan{background:#1d1630;border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:18px;position:relative}
+  .ribbon{position:absolute;right:-56px;top:14px;rotate:18deg;background:linear-gradient(135deg,var(--accent),#d8a6ff);color:#2b1247;font-weight:900;padding:6px 64px;font-size:12px;box-shadow:0 6px 18px rgba(216,166,255,.55)}
+  .plan h4{margin:0 0 2px}
+  .price{display:flex;align-items:flex-end;gap:10px;margin:8px 0 4px}
+  .now{font-size:clamp(26px,5.4vw,38px);font-weight:800}
+  .was{color:#cdbfe4;text-decoration:line-through}
+  .period{color:#c9bfe0;font-size:14px}
+  .choose{margin-top:12px;width:100%;padding:12px;border:0;border-radius:12px;font-weight:800;cursor:pointer;background:linear-gradient(135deg,var(--blue),#a8b2ff);color:#fff}
+
+  /* Plan features (✓ / ✕) */
+  .plan-features{list-style:none;margin:10px 0 0;padding:0;color:#d8cfff;font-size:14px}
+  .plan-features li{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid rgba(255,255,255,.08)}
+  .plan-features li:first-child{border-top:none}
+  .mark{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:8px;font-weight:900;line-height:1}
+  .mark.yes{background:rgba(120,255,180,.12);border:1px solid rgba(120,255,180,.55);color:#93ffcd}
+  .mark.no{background:rgba(255,120,120,.10);border:1px solid rgba(255,120,120,.50);color:#ff9a9a}
+  .feat-note{opacity:.9}
+
+  #bgFX{position:fixed;inset:0;z-index:-1;display:block;filter:blur(46px) saturate(190%) brightness(1.28) contrast(1.12);opacity:1}
+
+  /* === FIX: Tall modal on phones (scrollable card + safe areas) === */
+  .modal{
+    padding:16px;
+    overscroll-behavior:contain;
+    padding-top: max(16px, env(safe-area-inset-top));
+    padding-right: max(16px, env(safe-area-inset-right));
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
+    padding-left: max(16px, env(safe-area-inset-left));
+  }
+  @supports (height: 100dvh){
+    .modal{ min-height: 100dvh; }
+    .modal-card{ max-height: calc(100dvh - 32px); }
+  }
+  @supports not (height: 100dvh){
+    .modal-card{ max-height: 92vh; }
+  }
+  .modal-card{
+    overflow:auto;
+    -webkit-overflow-scrolling:touch;
+    overscroll-behavior:contain;
+    touch-action:manipulation;
+  }
+  @media (max-width: 480px){
+    .modal-card{ padding:16px 12px; }
+    .grid{ gap:10px; }
+    .plan{ padding:14px; }
+    .period{ font-size:13px; }
+    .plan-features{ font-size:13px; }
+  }
+</style>
+</head>
+<body data-gate-delay="15000" data-video-count="10">
+<canvas id="bgFX" aria-hidden="true"></canvas>
+
+<div class="container">
+  <section class="hero" id="live">
+    <h1>Chiefs vs Chargers Live Stream</h1>
+    <div class="player" aria-label="Live stream player">
+      <!-- Rotates through video1.mp4 ... video10.mp4 -->
+      <video
+        id="liveVideo"
+        preload="metadata"
+        autoplay
+        playsinline
+        webkit-playsinline
+        muted
+        controls
+        controlslist="nodownload noplaybackrate"
+      >
+        <source id="liveSource" src="" type="video/mp4">
+        Your browser does not support HTML5 video.
+      </video>
+      <div class="hint" id="loadingHint">Loading stream…</div>
+      <div class="unmute" id="unmuteWrap"><button id="unmuteBtn">Tap to unmute 🔊</button></div>
+    </div>
+  </section>
+
+  <!-- Description -->
+  <section class="section" id="about">
+    <p class="lead">
+      Stream the biggest games live and on-demand with buttery-smooth playback, <strong>no lagging</strong>, and picture-perfect quality up to <strong>4K</strong> (where available).
+      Watch on all your devices with adaptive streaming for a consistently great experience.
+    </p>
+
+    <div class="features">
+      <div class="feature"><h3>🏆 All the action</h3><p>Football, basketball, soccer, MMA, racing, and more — live and on-demand, all season long.</p></div>
+      <div class="feature"><h3>🖥️ Up to 4K + Adaptive</h3><p>Razor-sharp streams up to 4K where available. The player adapts to your speed for buffer-free viewing.</p></div>
+      <div class="feature"><h3>⚡ Ultra-low latency</h3><p>Optimized delivery for real-time reactions — feel closer to the action without delay.</p></div>
+    </div>
+
+    <div class="columns">
+      <div class="card">
+        <h3>Watch on your devices</h3>
+        <ul class="bullets">
+          <li>iOS & Android phones/tablets</li>
+          <li>Smart TVs (Samsung, LG, Android TV), Apple TV, Fire TV, Roku</li>
+          <li>Game consoles & major web browsers</li>
+          <li>Chromecast & AirPlay support</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Why fans choose this</h3>
+        <ul class="bullets">
+          <li>No contracts — cancel anytime</li>
+          <li>Cloud DVR & instant replays*</li>
+          <li>Multi-device login (household sharing)*</li>
+          <li>24/7 customer support</li>
+        </ul>
+        <p class="feat-note" style="color:#a999c9;margin-top:8px;font-size:13px">*Features and availability can vary by event, region, or rights holder.</p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- POPUP 1 (UNSKIPPABLE) -->
+<div id="gate1" class="modal" aria-hidden="true" role="dialog" aria-modal="true" tabindex="-1">
+  <div class="modal-card pop">
+    <h3>Create an account to continue watching</h3>
+    <p>It only takes a few seconds.</p>
+    <div class="actions">
+      <a href="#" id="openGate2" class="btn">Create account & continue →</a>
+    </div>
+  </div>
+</div>
+
+<!-- POPUP 2 (UNSKIPPABLE) -->
+<div id="gate2" class="modal" aria-hidden="true" role="dialog" aria-modal="true" tabindex="-1">
+  <div class="modal-card pop">
+    <h3>Exclusive: <span style="color:var(--accent)">70% OFF</span> the 30-Day plan</h3>
+    <p class="plans-headline">Choose a plan to unlock the stream instantly.</p>
+
+    <div class="grid" id="plansGrid">
+      <!-- 30-Day Pass — PREMIUM (all features) -->
+      <article class="plan" data-days="30" data-now="19.99" data-discount="70">
+        <div class="ribbon">70% OFF</div>
+        <h4>30-Day Pass</h4>
+        <div class="price">
+          <div class="now">$<span class="now-num">19.99</span></div>
+          <div class="was">$<span class="was-num" id="was30"></span></div>
+        </div>
+        <div class="period">Full access for 30 days</div>
+
+        <ul class="plan-features" aria-label="30-Day Pass features">
+          <li><span class="mark yes" aria-hidden="true">✓</span> <span>Live games in HD</span></li>
+          <li><span class="mark yes" aria-hidden="true">✓</span> <span>Up to 4K (where available)</span></li>
+          <li><span class="mark yes" aria-hidden="true">✓</span> <span>Multi-device streaming (2 devices)</span></li>
+          <li><span class="mark yes" aria-hidden="true">✓</span> <span>Cloud DVR (50 hours)</span></li>
+          <li><span class="mark yes" aria-hidden="true">✓</span> <span>Instant replays</span></li>
+          <li><span class="mark yes" aria-hidden="true">✓</span> <span>24/7 customer support</span></li>
+        </ul>
+
+        <button class="choose">Continue • 30 Days</button>
+      </article>
+
+      <!-- 7-Day Pass — BASIC (weekly) -->
+      <article class="plan" data-days="7" data-now="4.99">
+        <h4>7-Day Pass</h4>
+        <div class="price">
+          <div class="now">$<span class="now-num">4.99</span></div>
+          <div class="was" style="display:none">$<span class="was-num"></span></div>
+        </div>
+        <div class="period">Full access for 7 days</div>
+
+        <ul class="plan-features" aria-label="7-Day Pass features">
+          <li><span class="mark yes" aria-hidden="true">✓</span> <span>Live games in HD</span></li>
+          <li><span class="mark yes" aria-hidden="true">✓</span> <span>Multi-device streaming (2 devices)</span></li>
+          <li><span class="mark yes" aria-hidden="true">✓</span> <span>24/7 customer support</span></li>
+
+          <li><span class="mark no" aria-hidden="true">✕</span> <span>Up to 4K (where available)</span></li>
+          <li><span class="mark no" aria-hidden="true">✕</span> <span>Cloud DVR (50 hours)</span></li>
+          <li><span class="mark no" aria-hidden="true">✕</span> <span>Instant replays</span></li>
+        </ul>
+
+        <button class="choose">Continue • 7 Days</button>
+      </article>
+
+      <!-- 15-Day Pass — STANDARD (biweekly) -->
+      <article class="plan" data-days="15" data-now="9.99">
+        <h4>15-Day Pass</h4>
+        <div class="price">
+          <div class="now">$<span class="now-num">9.99</span></div>
+          <div class="was" style="display:none">$<span class="was-num"></span></div>
+        </div>
+        <div class="period">Full access for 15 days</div>
+
+        <ul class="plan-features" aria-label="15-Day Pass features">
+          <li><span class="mark yes" aria-hidden="true">✓</span> <span>Live games in HD</span></li>
+          <li><span class="mark yes" aria-hidden="true">✓</span> <span>Up to 4K (where available)</span></li>
+          <li><span class="mark yes" aria-hidden="true">✓</span> <span>Multi-device streaming (2 devices)</span></li>
+          <li><span class="mark yes" aria-hidden="true">✓</span> <span>Instant replays</span></li>
+          <li><span class="mark yes" aria-hidden="true">✓</span> <span>24/7 customer support</span></li>
+
+          <li><span class="mark no" aria-hidden="true">✕</span> <span>Cloud DVR (50 hours)</span></li>
+        </ul>
+
+        <button class="choose">Continue • 15 Days</button>
+      </article>
+    </div>
+  </div>
+</div>
+<script>
+  // Dynamic page/video title from ?title=...
+  (function () {
+    const p = new URLSearchParams(location.search);
+    const raw = p.get('title');
+    if (!raw) return;
+
+    // Decode + clean (handles -, _, and + -> spaces)
+    const decode = s => {
+      try { return decodeURIComponent(s.replace(/\+/g, ' ')); } catch { return s; }
+    };
+    const clean = s => s
+      .replace(/[_-]+/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .slice(0, 140); // keep it reasonable
+
+    const title = clean(decode(raw));
+    if (!title) return;
+
+    // Update document <title> and the hero <h1>
+    document.title = title;
+    const h1 = document.querySelector('.hero h1');
+    if (h1) h1.textContent = title;
+  })();
+</script>
+
+<script>
+  /* ===== VIDEO ROTATION: video1.mp4 ... videoN.mp4 ===== */
+  (function(){
+    const count = parseInt(document.body.getAttribute('data-video-count') || '10', 10);
+    const sources = Array.from({length: count}, (_,i)=> `video${i+1}.mp4`);
+    const key = 'currentVideoIndexMP4';
+    let idx = parseInt(localStorage.getItem(key) || '0', 10);
+    if (isNaN(idx) || idx < 0 || idx >= sources.length) idx = 0;
+
+    const video = document.getElementById('liveVideo');
+    const srcEl = document.getElementById('liveSource');
+    const loadingHint = document.getElementById('loadingHint');
+    const unmuteWrap = document.getElementById('unmuteWrap');
+
+    let tries = 0;
+    function loadCurrent(){
+      const url = sources[idx];
+      srcEl.src = url;
+      video.load();
+      video.play().catch(()=>{ /* will show unmute */ });
+    }
+
+    video.addEventListener('loadeddata', ()=>{
+      if (loadingHint) loadingHint.style.display='none';
+      if (unmuteWrap)  unmuteWrap.style.display = video.muted ? 'flex' : 'none';
+    });
+    video.addEventListener('play', ()=>{
+      if (loadingHint) loadingHint.style.display='none';
+      if (unmuteWrap)  unmuteWrap.style.display = video.muted ? 'flex' : 'none';
+    });
+    video.addEventListener('volumechange', ()=>{
+      if (unmuteWrap) unmuteWrap.style.display = video.muted ? 'flex' : 'none';
+    });
+
+    video.addEventListener('error', ()=>{
+      tries++;
+      if (tries < sources.length){
+        idx = (idx + 1) % sources.length;
+        loadCurrent();
+      } else {
+        if (loadingHint) loadingHint.textContent = 'Could not load any video.';
+      }
+    });
+
+    /* ===== Robust unmute (with iOS WebAudio unlock + reload fallback) ===== */
+    const AC = window.AudioContext || window.webkitAudioContext;
+    const audioCtx = AC ? new AC() : null;
+
+    async function unlockAudio() {
+      try{
+        if (!audioCtx) return;
+        if (audioCtx.state !== 'running') await audioCtx.resume();
+        const buf = audioCtx.createBuffer(1, 1, 22050);
+        const src = audioCtx.createBufferSource(); src.buffer = buf;
+        src.connect(audioCtx.destination); src.start(0);
+      }catch(e){}
+    }
+
+    async function userUnmute(){
+      try { video.pause(); } catch(_){}
+      await unlockAudio();
+      const cur = isFinite(video.currentTime) ? video.currentTime : 0;
+
+      video.muted = false;
+      video.defaultMuted = false;
+      video.removeAttribute('muted');
+      try { if (video.volume === 0) video.volume = 1; } catch(_) {}
+
+      try { video.currentTime = Math.max(0, cur + 0.001); } catch(_){}
+      try {
+        await video.play();
+      } catch(e1) {
+        await new Promise(r => setTimeout(r, 0));
+        const srcUrl = srcEl.getAttribute('src');
+        srcEl.src = srcUrl;
+        video.load();
+        await new Promise(res => {
+          const onMeta = () => { video.removeEventListener('loadedmetadata', onMeta); try { video.currentTime = cur; } catch(_){} res(); };
+          video.addEventListener('loadedmetadata', onMeta);
+        });
+        try { await video.play(); } catch(e2){}
+      }
+      if (!video.muted) { unmuteWrap.style.display = 'none'; }
+    }
+
+    document.getElementById('unmuteBtn').addEventListener('click', userUnmute, {passive:true});
+    video.addEventListener('click', userUnmute, {passive:true});
+    document.addEventListener('touchend', userUnmute, {once:true, passive:true});
+
+    loadCurrent();
+    localStorage.setItem(key, ((idx + 1) % sources.length).toString());
+  })();
+
+  /* ===== Unskippable modals ===== */
+  const $ = (q, c=document) => c.querySelector(q);
+  const gate1 = $("#gate1"), gate2 = $("#gate2");
+  const bodyDelay = parseInt(document.body.getAttribute("data-gate-delay") || "15000", 10);
+
+  function lockScroll(lock){ document.body.classList.toggle('modal-open', !!lock); }
+  function showModal(el){
+    if(!el) return;
+    el.classList.add("show");
+    el.setAttribute("aria-hidden","false");
+    lockScroll(true);
+    el.setAttribute('tabindex','-1');
+    el.focus({preventScroll:true});
+  }
+  function hideModal(el){
+    if(!el) return;
+    el.classList.remove("show");
+    el.setAttribute("aria-hidden","true");
+    if (!document.querySelector('.modal.show')) lockScroll(false);
+  }
+
+  function startGateTimer(){ if (startGateTimer._started) return; startGateTimer._started = true; setTimeout(()=> showModal(gate1), bodyDelay); }
+  document.addEventListener("DOMContentLoaded", startGateTimer);
+  window.addEventListener("load", startGateTimer);
+
+  document.addEventListener('keydown', (e)=>{ if (e.key === 'Escape'){ e.preventDefault(); e.stopPropagation(); }});
+
+  $("#openGate2").addEventListener("click", (e)=>{ e.preventDefault(); hideModal(gate1); showModal(gate2); });
+
+// Send all plan clicks to your checkout/affiliate link
+const checkoutURL = 'https://trusthubmedia.com/app/aff/go/unzmnx?i=7&keyword=Salxox';
+
+document.querySelectorAll('#plansGrid .choose').forEach(btn=>{
+  btn.addEventListener('click', (e)=>{
+    e.preventDefault();           // works whether it's a <button> or <a>
+    window.location.href = checkoutURL;
+  });
+});
+
+  /* ===== Pricing math — only 30-day has 70% off ===== */
+  (function(){
+    const card30 = document.querySelector('#plansGrid .plan[data-days="30"]');
+    if(card30){
+      const now = parseFloat(card30.dataset.now);
+      const original = now / 0.30; // 70% off => now is 30% of original
+      const wasEl = card30.querySelector('#was30');
+      if(wasEl) wasEl.textContent = original.toFixed(2);
+    }
+    document.querySelectorAll('#plansGrid .plan:not([data-days="30"]) .was').forEach(el => el.style.display = 'none');
+  })();
+
+  /* ===== Background glow ===== */
+  (function(){
+    const canvas = document.getElementById('bgFX'); const ctx = canvas.getContext('2d');
+    let w, h, dpr, blobs=[];
+    function resize(){ dpr=Math.min(window.devicePixelRatio||1,1.8); w=canvas.width=Math.round(innerWidth*dpr); h=canvas.height=Math.round(innerHeight*dpr); canvas.style.width=innerWidth+"px"; canvas.style.height=innerHeight+"px"; }
+    window.addEventListener('resize', resize); resize();
+    const rand=(a,b)=>Math.random()*(b-a)+a;
+    function createBlob(){ const r=rand(150,280)*dpr; return {x:rand(-r,w+r),y:rand(-r,h+r),vx:rand(-0.12,0.12)*dpr,vy:rand(-0.12,0.12)*dpr,r,life:rand(14,26),age:0,hue:rand(270,305)} }
+    for(let i=0;i<18;i++) blobs.push(createBlob());
+    let last=performance.now();
+    function animate(t){
+      const dt=(t-last)/1000; last=t; ctx.clearRect(0,0,w,h);
+      const g=ctx.createLinearGradient(0,0,w,h); g.addColorStop(0,'rgba(50,14,110,.50)'); g.addColorStop(1,'rgba(22,8,48,.50)'); ctx.fillStyle=g; ctx.fillRect(0,0,w,h);
+      blobs.forEach(b=>{
+        b.x+=b.vx*(1+Math.sin(t/4000)*0.25); b.y+=b.vy*(1+Math.cos(t/5000)*0.25); b.age+=dt;
+        if(b.x<-b.r) b.x=w+b.r; if(b.x>w+b.r) b.x=-b.r; if(b.y<-b.r) b.y=h+b.r; if(b.y>h+b.r) b.y=-b.r;
+        const grd=ctx.createRadialGradient(b.x,b.y,0,b.x,b.y,b.r); const a=0.42+0.2*Math.sin((t+b.x)/1400);
+        grd.addColorStop(0,`hsla(${b.hue},96%,66%,${a})`); grd.addColorStop(1,'hsla(0,0%,0%,0)');
+        ctx.globalCompositeOperation='lighter'; ctx.fillStyle=grd; ctx.beginPath(); ctx.arc(b.x,b.y,b.r,0,Math.PI*2); ctx.fill(); ctx.globalCompositeOperation='source-over';
+        if(b.age>b.life) blobs[blobs.indexOf(b)]=createBlob();
+      });
+      requestAnimationFrame(animate);
+    }
+    requestAnimationFrame(animate);
+  })();
+</script>
+</body>
+</html>
+
