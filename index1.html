@@ -1,593 +1,569 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>ZUZZ.TV</title>
-  <meta name="description" content="ZUZZ.TV — Tap to preview NFL games live for 15 seconds, then register to watch in HD on your phone. No cable required." />
-  <meta name="theme-color" content="#0b0a1a" />
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>GameHub Live — Watch Now</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#eaf0f6; --muted:#aab6c5;
+    --brand:#00d18a; --brand-2:#00b3ff; --card:#0d1117;
+    --shadow:0 10px 30px rgba(0,0,0,.45); --radius:18px;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; color:var(--ink);
+    font-family:Manrope, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+    -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+    background:#0a0c0f; /* fallback behind the collage */
+    padding-top: max(0px, env(safe-area-inset-top));
+    padding-left: max(0px, env(safe-area-inset-left));
+    padding-right: max(0px, env(safe-area-inset-right));
+  }
+  a{color:inherit; text-decoration:none}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 16px}
 
-  <style>
-    /* =====================  Brand — Neon Night Rebrand  ===================== */
-    :root{
-      --bg:#0b0a1a;
-      --bg2:#0d0a27;
-      --panel:#11102a;
-      --panel2:#17153a;
-      --ink:#eef1ff;
-      --muted:#aab0d9;
-      --brand:#7c3aed;    /* violet */
-      --brand2:#00e5ff;   /* cyan */
-      --accent:#ff3b81;   /* pink-red */
-      --ok:#2dd36f;
-      --r:16px;
-      --pad:clamp(16px,4vw,22px);
-      --tap:48px;
-      --shadow:0 12px 30px rgba(0,0,0,.45);
-      --glass:rgba(255,255,255,.06);
-      --glassBorder:rgba(255,255,255,.12);
-    }
+  /* ===== Full-screen blurred/glowing background image ===== */
+  .bg{ position:fixed; inset:0; z-index:-2; overflow:hidden; }
+  .bg::before{
+    content:""; position:absolute; inset:-6%;
+    background-image: var(--bg-url, url('sports-collage.jpg'));
+    background-size:cover; background-position:center;
+    filter: blur(24px) saturate(1.25) brightness(1.2); /* ~50% blur feel */
+    transform: scale(1.06); /* hide blur edges */
+  }
+  .bg::after{
+    content:""; position:absolute; inset:0;
+    background:
+      radial-gradient(1200px 700px at 10% 0%, rgba(0,179,255,.35), transparent 60%),
+      radial-gradient(1000px 600px at 90% 10%, rgba(0,209,138,.30), transparent 60%),
+      linear-gradient(180deg, rgba(3,7,12,.55), rgba(3,7,12,.75));
+    mix-blend-mode:screen; opacity:.85; pointer-events:none;
+  }
 
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0; color:var(--ink);
-      background: radial-gradient(1000px 700px at 80% -10%, #23104a 0%, transparent 60%) , linear-gradient(170deg,var(--bg), var(--bg2) 50%, var(--bg) 100%);
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
-      -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
-      overflow-x:hidden;
-      position:relative;
-    }
-    /* Animated aurora */
-    body::before{
-      content:""; position:fixed; inset:-20% -10% -10% -10%; z-index:-1; pointer-events:none;
-      background:
-        radial-gradient(40% 60% at 20% 10%, rgba(124,58,237,.25), transparent 60%),
-        radial-gradient(45% 65% at 80% 20%, rgba(0,229,255,.22), transparent 65%),
-        radial-gradient(50% 60% at 50% 80%, rgba(255,59,129,.12), transparent 60%);
-      filter: blur(40px) saturate(1.1);
-      animation: aurora 16s ease-in-out infinite alternate;
-    }
-    @keyframes aurora{
-      0%{ transform: translate3d(0,0,0) scale(1)}
-      100%{ transform: translate3d(-4%,3%,0) scale(1.05)}
-    }
+  /* ===== Header ===== */
+  .topbar{
+    position:sticky; top:0; z-index:20;
+    backdrop-filter:saturate(140%) blur(10px);
+    background:linear-gradient(180deg, rgba(10,14,18,.85), rgba(10,14,18,.55));
+    border-bottom:1px solid rgba(255,255,255,.06);
+  }
+  .nav{display:flex; align-items:center; justify-content:space-between; gap:8px; padding:12px 0}
+  .brand{display:flex; align-items:center; gap:10px; font-weight:800; letter-spacing:.4px}
+  .logo{
+    width:28px; height:28px; border-radius:8px;
+    background:conic-gradient(from 180deg, var(--brand), var(--brand-2));
+    box-shadow:0 6px 18px rgba(0,179,255,.35), inset 0 0 18px rgba(0,209,138,.35);
+  }
+  .nav a.link{opacity:.95; padding:10px 12px; border-radius:10px; font-size:14px}
+  .nav a.link:hover{background:rgba(255,255,255,.08)}
 
-    .wrap{ max-width:920px; margin-inline:auto; padding: calc(var(--pad) + env(safe-area-inset-top)) var(--pad) calc(var(--pad) + env(safe-area-inset-bottom)); }
+  /* ===== Layout / Mobile-first ===== */
+  .hero{padding:18px 0 14px}
+  .grid{display:grid; gap:14px; grid-template-columns:1fr}
+  @media (min-width: 980px){ .grid{grid-template-columns: 1.35fr 1fr;} }
 
-    /* =====================  App Loader (Streaming vibe)  ===================== */
-    .app-loader{
-      position:fixed; inset:0; display:grid; place-items:center; background:linear-gradient(180deg,#080714,#0b0a1a 60%);
-      z-index:999; transition: opacity .35s ease, visibility .35s ease;
-    }
-    .app-loader.hidden{ opacity:0; visibility:hidden }
-    .loader-card{
-      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
-      border:1px solid var(--glassBorder); border-radius:18px; padding:22px 24px; text-align:center; box-shadow:var(--shadow);
-    }
-    .loader-badge{
-      width:48px; height:48px; border-radius:14px; margin:0 auto 10px;
-      background:conic-gradient(from 210deg,var(--brand),var(--brand2),var(--brand));
-      display:grid; place-items:center;
-      box-shadow:0 12px 26px rgba(124,58,237,.35);
-      animation: floaty 2.6s ease-in-out infinite;
-    }
-    .loader-badge::before{ content:"▶"; font-size:16px; color:#070d17; font-weight:900; transform:translateX(1px) }
-    @keyframes floaty{
-      0%,100%{ transform: translateY(0) }
-      50%{ transform: translateY(-6px) }
-    }
-    .eq{
-      display:flex; gap:5px; margin-top:8px; justify-content:center;
-    }
-    .eq span{
-      width:6px; height:16px; border-radius:6px; background:linear-gradient(180deg,var(--brand2),var(--brand));
-      animation: bars 1s ease-in-out infinite;
-    }
-    .eq span:nth-child(2){animation-delay:.15s}
-    .eq span:nth-child(3){animation-delay:.3s}
-    .eq span:nth-child(4){animation-delay:.45s}
-    @keyframes bars{
-      0%,100%{ transform:scaleY(.6) }
-      50%{ transform:scaleY(1.4) }
-    }
+  .player{
+    background:rgba(13,17,23,.75);
+    border:1px solid rgba(255,255,255,.10);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    position:relative; overflow:hidden;
+    aspect-ratio:16/9;
+    backdrop-filter: blur(4px) saturate(120%);
+  }
+  video{width:100%; height:100%; display:block; background:#000; object-fit:cover}
 
-    /* =====================  Header  ===================== */
-    header{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:12px; }
-    .brand{ display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--ink); font-weight:900; letter-spacing:.3px }
-    .badge{ width:40px; height:40px; border-radius:12px; background:conic-gradient(from 210deg,var(--brand),var(--brand2),var(--brand)); display:grid; place-items:center; box-shadow:0 10px 22px rgba(124,58,237,.32) }
-    .badge::before{ content:"▶"; font-size:14px; color:#071017; font-weight:900; transform:translateX(1px) }
-    .btn{
-      appearance:none; border:0; border-radius:14px; padding:12px 16px; min-height:var(--tap);
-      display:inline-flex; align-items:center; justify-content:center; gap:8px;
-      font-weight:800; text-decoration:none; cursor:pointer;
-      color:#030b11; background:linear-gradient(135deg,var(--brand2), var(--brand));
-      box-shadow:0 12px 26px rgba(0,229,255,.22);
-      transition:transform .12s ease, filter .12s ease, box-shadow .2s ease;
-    }
-    .btn:hover{ transform:translateY(-1px); filter:saturate(1.08); box-shadow:0 16px 34px rgba(0,229,255,.28) }
-    .btn.ghost{ background:transparent; color:var(--ink); border:1px solid var(--glassBorder); box-shadow:none }
-    .btn.pulse{ position:relative; overflow:hidden }
-    .btn.pulse::after{
-      content:""; position:absolute; inset:-2px; border-radius:inherit;
-      background: radial-gradient(120px 40px at var(--x,10%) 0%, rgba(255,255,255,.25), transparent 40%);
-      opacity:.0; transition:opacity .25s ease;
-    }
-    .btn.pulse:hover::after{ opacity:.35 }
+  .badge{
+    position:absolute; top:10px; left:10px;
+    background:linear-gradient(90deg, var(--brand), var(--brand-2));
+    color:#041016; font-weight:900; font-size:12px; padding:8px 10px; border-radius:999px;
+    box-shadow:0 6px 20px rgba(0,179,255,.35);
+    display:flex; gap:8px; align-items:center;
+  }
+  .live-dot{width:8px;height:8px;border-radius:99px;background:#ff4d4d; box-shadow:0 0 0 6px rgba(255,77,77,.22) inset}
 
-    /* =====================  Hero  ===================== */
-    .hero{ display:grid; gap:12px; }
-    h1{ font-size: clamp(22px, 6.2vw, 36px); line-height:1.15; margin:6px 0 2px }
-    .lead{ color:#dfe4ff; font-size:clamp(14px,4.2vw,17px); line-height:1.55 }
-    .eyebrow{ display:inline-flex; align-items:center; gap:8px; font-size:12px; color:var(--muted); letter-spacing:.6px; text-transform:uppercase }
-    .live-dot{ width:10px; height:10px; border-radius:50%; background:var(--accent); box-shadow:0 0 0 0 rgba(255,59,129,.6); animation:pulse 1.8s infinite }
-    @keyframes pulse{ 0%{box-shadow:0 0 0 0 rgba(255,59,129,.6)} 70%{box-shadow:0 0 0 10px rgba(255,59,129,0)} 100%{box-shadow:0 0 0 0 rgba(255,59,129,0)} }
+  .overlay{
+    position:absolute; inset:auto 0 0 0; padding:8px 10px;
+    display:flex; gap:10px; align-items:center; justify-content:space-between;
+    background:linear-gradient(180deg, transparent, rgba(0,0,0,.55));
+    font-size:13px; color:#e5e7eb;
+  }
+  .hint{opacity:.85}
+  .unmute{display:none}
+  .unmute button{
+    border:0; border-radius:12px; padding:10px 12px; font-weight:800; cursor:pointer;
+    color:#041016; background:linear-gradient(135deg,var(--brand-2), var(--brand));
+    box-shadow:0 10px 26px rgba(0,179,255,.45);
+  }
 
-    /* =====================  Player  ===================== */
-    .player{
-      position:relative; background:linear-gradient(180deg,#0a0a1f,#0a1025); border-radius:var(--r); overflow:hidden;
-      border:1px solid var(--glassBorder); box-shadow:var(--shadow); aspect-ratio:16/9;
-    }
-    video{ width:100%; height:100%; object-fit:cover; display:block; background:#000; filter:saturate(1.06) contrast(1.05) }
-    .hud{ position:absolute; inset:0; pointer-events:none; display:flex; flex-direction:column; justify-content:space-between }
-    .topbar{ display:flex; align-items:center; justify-content:space-between; gap:8px; padding:10px 10px 0 }
-    .pill{
-      background: rgba(0,0,0,.50); backdrop-filter: blur(6px);
-      border:1px solid var(--glassBorder); color:#e6efff;
-      border-radius:12px; padding:6px 10px; font-weight:800; font-size:13px; letter-spacing:.3px;
-      display:inline-flex; align-items:center; gap:6px;
-    }
-    .watch{ font-variant-numeric:tabular-nums; }
-    .trial{ margin:8px 10px 0; height:8px; border-radius:999px; background:rgba(255,255,255,.08); border:1px solid var(--glassBorder); overflow:hidden }
-    .fill{ height:100%; width:0%; background:linear-gradient(90deg,var(--brand2),var(--brand)); box-shadow:0 0 10px rgba(0,229,255,.45); transition:width linear }
+  .side{
+    background:rgba(13,17,23,.75);
+    border:1px solid rgba(255,255,255,.10);
+    border-radius:var(--radius);
+    padding:14px;
+    backdrop-filter: blur(4px) saturate(120%);
+  }
+  .title{margin:0 0 6px;font-size:clamp(20px, 6vw, 34px); line-height:1.15}
+  .sub{margin:0 0 10px; color:var(--muted); font-size:clamp(14px,3.6vw,16px)}
+  .facts{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin:12px 0}
+  .fact{background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.10); padding:10px; border-radius:14px}
+  .fact small{color:#c9d3df}
+  .list{margin:10px 0 0; padding-left:18px; color:#d7dee7; font-size:14px}
+  .footnote{color:#bac6d3; font-size:12px; margin-top:8px}
 
-    .overlay{ position:absolute; inset:0; display:grid; place-items:center; background:linear-gradient(180deg, transparent, rgba(0,0,0,.22)); z-index:3 }
-    .play-ui{ display:flex; flex-direction:column; align-items:center; gap:10px; text-align:center; transition:opacity .2s ease, transform .2s ease }
-    .play{
-      width:100px; height:100px; min-width:100px; border-radius:999px; border:0; cursor:pointer;
-      background: radial-gradient(circle at 30% 30%, var(--brand2), var(--brand) 65%, #5b17ff 100%);
-      box-shadow:0 14px 38px rgba(0,229,255,.35), inset 0 -10px 18px rgba(0,0,0,.35);
-      display:grid; place-items:center; touch-action:manipulation;
-      transform: translateZ(0);
-      transition: transform .1s ease, filter .15s ease;
-    }
-    .play:hover{ transform: translateY(-2px) scale(1.02); filter:saturate(1.08) }
-    .play svg{ width:36px; height:36px; transform:translateX(2px) }
-    .hint{ font-weight:800; color:#eaf1ff; text-shadow:0 2px 8px rgba(0,0,0,.4) }
-    .hidden{ opacity:0; pointer-events:none; transform:translateY(8px) }
+  /* ===== Modal (unskippable) — mobile friendly ===== */
+  .modal{
+    position:fixed; inset:0; display:flex; align-items:center; justify-content:center;
+    background:rgba(6,10,14,.66); backdrop-filter: blur(12px) saturate(160%);
+    z-index:1000; opacity:0; pointer-events:none; transition:opacity .28s ease;
+    padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right))
+             max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  }
+  .modal.show{opacity:1; pointer-events:auto}
+  .card{
+    width:min(680px, 96%); max-height:calc(100dvh - 32px); overflow:auto;
+    border-radius:20px; padding:16px; position:relative;
+    background:linear-gradient(180deg, rgba(13,17,23,.95), rgba(10,13,17,.95));
+    border:1px solid rgba(255,255,255,.12);
+    box-shadow:0 24px 60px rgba(0,0,0,.6);
+    transform:translateY(14px) scale(.985); animation:pop .35s ease forwards;
+    -webkit-overflow-scrolling:touch; overscroll-beavior:contain;
+  }
+  @keyframes pop{to{transform:translateY(0) scale(1)}}
+  .card h3{margin:2px 0 8px; text-align:center; font-size:clamp(18px, 5vw, 28px)}
+  .card p{margin:0; text-align:center; color:var(--muted)}
+  .actions{display:flex; gap:10px; justify-content:center; margin-top:12px; flex-wrap:wrap}
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:10px;
+    padding:12px 16px; font-weight:900; border-radius:12px; border:0; cursor:pointer;
+    background:linear-gradient(135deg, var(--brand), var(--brand-2));
+    color:#041016; box-shadow:0 14px 38px rgba(0,179,255,.45);
+    font-size:16px;
+  }
 
-    .blurred video{ filter: blur(2px) brightness(.82) }
+  body.modal-open{overflow:hidden}
 
-    /* Buffering badge inside player */
-    .buffering{
-      position:absolute; inset:0; display:none; place-items:center; z-index:4;
-      background: radial-gradient(60% 60% at 50% 50%, rgba(0,0,0,.35), transparent 60%);
-      pointer-events:none;
-    }
-    .buffering.show{ display:grid; }
-    .spinner{
-      width:64px; height:64px; border-radius:50%;
-      border:4px solid rgba(255,255,255,.18); border-top-color:var(--brand2);
-      animation: spin 1s linear infinite;
-      margin:auto;
-    }
-    @keyframes spin{ to{ transform:rotate(360deg) } }
-    .buffering .msg{ margin-top:10px; font-weight:800; color:#e0ebff; text-shadow:0 2px 8px rgba(0,0,0,.5); text-align:center }
+  /* Hide timeline on hover devices (keep for touch) */
+  @media (hover:hover){ /* controls removed via JS at runtime */ }
+  .player video::-webkit-media-controls-timeline,
+  .player video::-webkit-media-controls-current-time-display,
+  .player video::-webkit-media-controls-time-remaining-display,
+  .player video::-webkit-media-controls-seek-back-button,
+  .player video::-webkit-media-controls-seek-forward-button{ display:none !important; }
 
-    /* =====================  Value + How It Works  ===================== */
-    .cards{ display:grid; gap:12px; margin-top:12px }
-    .card{ background:linear-gradient(180deg, rgba(255,255,255,.05), transparent 60%); border:1px solid var(--glassBorder); border-radius:var(--r); padding:14px }
-    .card h3{ margin:4px 0 6px; font-size:18px }
-    .card p{ margin:0; color:#d6e3ff; line-height:1.6 }
-    .how{
-      display:grid; grid-template-columns:1fr; gap:10px; margin-top:8px;
-    }
-    .how .step{
-      display:flex; gap:10px; align-items:flex-start; background:linear-gradient(180deg, rgba(255,255,255,.04), transparent);
-      border:1px solid var(--glassBorder); border-radius:14px; padding:12px;
-    }
-    .num{
-      width:30px; height:30px; border-radius:10px; flex:0 0 30px;
-      display:grid; place-items:center; font-weight:900; color:#061018;
-      background:linear-gradient(135deg,var(--brand2),var(--brand)); box-shadow:0 8px 20px rgba(0,229,255,.24);
-    }
-    .step strong{ display:block; margin-bottom:4px }
-
-    /* =====================  Trust Bar + Testimonials  ===================== */
-    .trust{
-      display:grid; gap:10px; margin-top:12px;
-    }
-    .trust-row{
-      display:flex; gap:10px; align-items:center; justify-content:space-between; flex-wrap:wrap;
-      background:linear-gradient(180deg, rgba(255,255,255,.05), transparent);
-      border:1px solid var(--glassBorder); border-radius:var(--r); padding:10px 12px;
-    }
-    .trust-row .chip{
-      display:inline-flex; align-items:center; gap:8px; padding:8px 10px; border-radius:999px;
-      background:rgba(0,0,0,.35); border:1px solid var(--glassBorder); font-weight:700; font-size:13px;
-    }
-    .trust-row .dot{ width:10px; height:10px; border-radius:50%; background:var(--ok); box-shadow:0 0 10px rgba(45,211,111,.6) }
-    .testimony{
-      position:relative; overflow:hidden; height:auto; min-height:62px;
-      border:1px solid var(--glassBorder); border-radius:var(--r); padding:12px;
-      background:linear-gradient(180deg, rgba(255,255,255,.04), transparent);
-    }
-    .testimony p{ margin:0 }
-    .fade-in{ animation: fade .35s ease both }
-    @keyframes fade{ from{opacity:0; transform:translateY(4px)} to{opacity:1; transform:none} }
-
-    /* =====================  Sticky CTA  ===================== */
-    .sticky{
-      position:sticky; bottom:0; z-index:20; margin-top:12px;
-      background: linear-gradient(180deg, rgba(0,0,0,0), rgba(5,6,20,.78) 30%, rgba(5,6,20,.95) 100%);
-      padding:10px 0 0;
-    }
-    .bar{
-      background:linear-gradient(180deg,#16143a,#0f0e2c);
-      border:1px solid var(--glassBorder);
-      border-radius:16px;
-      padding:10px; display:flex; gap:10px; align-items:center; justify-content:space-between;
-      box-shadow:var(--shadow)
-    }
-    .bar span{ font-weight:800; color:#e8ecff }
-    .bar .btn{ flex:0 0 auto; padding-inline:18px }
-
-    /* =====================  Modal Sheet  ===================== */
-    .modal{ position:fixed; inset:0; background:rgba(6,10,26,.6); backdrop-filter: blur(12px); display:grid; place-items:end center; padding: var(--pad); opacity:0; pointer-events:none; transition:opacity .2s ease; z-index:50 }
-    .modal.open{ opacity:1; pointer-events:auto }
-    .sheet{
-      width:100%; max-width:640px; background:linear-gradient(180deg,#151448,#0f0e2e);
-      border:1px solid var(--glassBorder); border-radius:22px; padding:16px;
-      transform:translateY(22px); animation:rise .2s ease forwards;
-      box-shadow:0 20px 50px rgba(0,0,0,.5);
-    }
-    @keyframes rise{ to{ transform:translateY(0) } }
-    .sheet h2{ margin:0 0 8px; font-size:clamp(18px,5.5vw,22px) }
-    .sheet p{ margin:0; color:#cfe0ff; line-height:1.65 }
-    .perks{ display:grid; gap:8px; margin:12px 0 0 }
-    .perk{ display:flex; align-items:center; gap:8px; font-weight:700; color:#eaf1ff }
-    .perk .tick{
-      width:18px; height:18px; border-radius:6px; background:linear-gradient(135deg,#27ffd1,#00e5ff);
-      display:grid; place-items:center; color:#032026; font-weight:900; font-size:12px;
-    }
-    .actions{ display:grid; grid-template-columns:1fr; gap:10px; margin-top:14px }
-    .btn.full{ width:100% }
-    .fine{ margin-top:8px; font-size:12px; color:var(--muted) }
-
-    /* =====================  Footer  ===================== */
-    footer{ margin:18px 0 6px; color:var(--muted); font-size:13px }
-    .links{ display:flex; flex-wrap:wrap; gap:12px }
-    .links a{ color:#cfe0ff; text-decoration:none; border-bottom:1px dashed rgba(207,224,255,.3) }
-
-    /* Motion prefs */
-    @media (prefers-reduced-motion:reduce){
-      .play-ui, .play, .app-loader, .spinner, .eq span, .badge, body::before{ animation:none !important }
-      .btn, .hidden{ transition:none !important }
-    }
-    @media (min-width:760px){
-      .cards{ grid-template-columns:repeat(3,1fr) }
-      .how{ grid-template-columns:1fr 1fr }
-      .sheet{ border-radius:24px }
-    }
-  </style>
+  /* Small phones */
+  @media (max-width:420px){
+    .nav a.link{padding:8px 10px; font-size:13px}
+    .btn{width:100%}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .modal{transition:none}
+    .card{animation:none; transform:none}
+  }
+</style>
 </head>
-<body>
-  <!-- App Loader -->
-  <div class="app-loader" id="appLoader" aria-hidden="false">
-    <div class="loader-card">
-      <div class="loader-badge" aria-hidden="true"></div>
-      <div style="font-weight:900; letter-spacing:.4px; margin-bottom:2px">ZUZZ.TV</div>
-      <div style="opacity:.9">Starting secure stream…</div>
-      <div class="eq" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
-    </div>
-  </div>
 
-  <div class="wrap">
-    <!-- Header -->
-    <header>
-      <a class="brand" href="#">
-        <span class="badge" aria-hidden="true"></span>
-        <span>ZUZZ.TV</span>
-      </a>
+<body data-video-count="10"
+      data-gate-delay="12000"
+      data-register-url="https://your-signup-link.example.com"
+      data-bg="sports-collage.jpg">
+  <!-- Background image layers -->
+  <div class="bg" id="bg"></div>
+
+  <header class="topbar">
+    <div class="wrap nav">
+      <div class="brand"><span class="logo" aria-hidden="true"></span> GameHub Live</div>
       <nav>
-        <a class="btn ghost" href="#how">How it works</a>
-        <a class="btn ghost" href="#faq">FAQ</a>
+        <a class="link" href="#watch">Watch</a>
+        <a class="link" href="#sports">Sports</a>
+        <a class="link" href="#help">Support</a>
       </nav>
-    </header>
+    </div>
+  </header>
 
-    <!-- Hero -->
-    <section class="hero">
-      <div>
-        <div class="eyebrow"><span class="live-dot"></span> NFL • LIVE TODAY</div>
-        <!-- DYNAMIC TITLE -->
-        <h1 id="dynamicTitle">Watch NFL Games Live on Your Phone</h1>
-        <p class="lead">Tap the player to start a <strong>15-second</strong> preview. When it ends, register in seconds to keep watching in HD—no cable required.</p>
-      </div>
-
-      <!-- Player -->
-      <div class="player" id="playerCard" aria-label="Live game player">
-        <video id="video" preload="metadata" playsinline>
-          <source src="flower.mp4" type="video/mp4" />
+  <main class="wrap hero" id="watch" aria-label="Live game">
+    <div class="grid">
+      <section class="player" aria-label="Live stream player">
+        <span class="badge"><span class="live-dot" aria-hidden="true"></span> LIVE</span>
+        <!-- Keep controls for touch; JS removes them on hover devices -->
+        <video id="video" preload="metadata" autoplay muted playsinline webkit-playsinline controls controlslist="nodownload noplaybackrate">
+          <source id="source" src="" type="video/mp4">
           Your browser does not support HTML5 video.
         </video>
-
-        <!-- HUD -->
-        <div class="hud">
-          <div class="topbar">
-            <div class="pill"><span class="live-dot" style="box-shadow:none"></span> LIVE</div>
-            <div class="pill"><span style="opacity:.8">WATCHING NOW:</span> <span class="watch" id="watchers">72,931</span></div>
-          </div>
-          <div class="trial" aria-hidden="true"><div class="fill" id="trialFill"></div></div>
+        <div class="overlay">
+          <div class="hint" id="hint">Preparing stream…</div>
+          <div class="unmute" id="unmute"><button id="unmuteBtn" type="button">Tap to unmute 🔊</button></div>
         </div>
+      </section>
 
-        <!-- Buffering overlay -->
-        <div class="buffering" id="buffering">
-          <div style="display:flex; flex-direction:column; align-items:center;">
-            <div class="spinner" aria-hidden="true"></div>
-            <div class="msg">Fetching Live Feed…</div>
-          </div>
+      <aside class="side">
+        <h1 class="title">Miami vs Dallas — Tonight</h1>
+        <p class="sub">Smooth, low-latency playback on every device.</p>
+        <div class="facts">
+          <div class="fact"><strong>4K*</strong><br><small>Adaptive bitrate</small></div>
+          <div class="fact"><strong>2 Devices</strong><br><small>Phone + TV</small></div>
+          <div class="fact"><strong>Cloud DVR</strong><br><small>Replays & highlights</small></div>
+          <div class="fact"><strong>24/7</strong><br><small>Support</small></div>
         </div>
-
-        <!-- Tap overlay -->
-        <div class="overlay" id="overlay">
-          <div class="play-ui" id="playUI">
-            <button class="play" id="playBtn" aria-label="Play 15-second preview">
-              <svg viewBox="0 0 24 24" fill="#06121b" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
-            </button>
-            <div class="hint">Tap to start your preview</div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Value props -->
-    <section class="cards">
-      <div class="card"><h3>All Games, One Login</h3><p>Sunday matchups, primetime, and RedZone in one place. No cable. No fuss.</p></div>
-      <div class="card"><h3>Made for Mobile</h3><p>Fast player, big buttons, clean UI. Looks crisp on any screen size.</p></div>
-      <div class="card"><h3>Secure Checkout</h3><p>Register on our trusted partner’s encrypted page and stream instantly.</p></div>
-    </section>
-
-    <!-- How it works (conversion booster) -->
-    <section id="how" class="how">
-      <div class="step">
-        <div class="num">1</div>
-        <div><strong>Preview the game</strong><span style="display:block;color:#cfe0ff">Tap play for a 15-second live sample—no signup needed.</span></div>
-      </div>
-      <div class="step">
-        <div class="num">2</div>
-        <div><strong>Register in seconds</strong><span style="display:block;color:#cfe0ff">Secure checkout with instant activation on mobile & TV.</span></div>
-      </div>
-      <div class="step">
-        <div class="num">3</div>
-        <div><strong>Enjoy HD with cast</strong><span style="display:block;color:#cfe0ff">Keep watching in HD and cast to your big screen anytime.</span></div>
-      </div>
-      <div class="step">
-        <div class="num">4</div>
-        <div><strong>Cancel anytime</strong><span style="display:block;color:#cfe0ff">Full control from your account—no long-term contracts.</span></div>
-      </div>
-    </section>
-
-    <!-- Trust + Testimonials -->
-    <section class="trust">
-      <div class="trust-row">
-        <div class="chip"><span class="dot"></span> Servers: Healthy</div>
-        <div class="chip">AES-256 Secure</div>
-        <div class="chip">Instant Access</div>
-        <div class="chip">Mobile + TV Cast</div>
-      </div>
-      <div class="testimony" id="testimonyBox">
-        <p class="fade-in" id="testimonyText">“Clicked play, saw the preview, signed up, and the stream was live in under a minute.” — J. Carter</p>
-      </div>
-    </section>
-
-    <!-- Sticky CTA -->
-    <div class="sticky">
-      <div class="bar">
-        <span>Ready for the full game?</span>
-        <a class="btn pulse" data-aff href="#">Register &amp; Watch</a>
-      </div>
+        <ul class="list">
+          <li>iOS, Android, Web, Apple TV, Fire TV, Roku, Smart TVs</li>
+          <li>Chromecast & AirPlay supported</li>
+          <li>No long-term contracts</li>
+        </ul>
+        <p class="footnote">*4K where available. Features vary by event and region.</p>
+      </aside>
     </div>
+  </main>
 
-    <!-- FAQ -->
-    <section id="faq" class="cards">
-      <div class="card"><h3>Is there a free trial?</h3><p>You get a 15-second instant preview here. Register to unlock full games in HD.</p></div>
-      <div class="card"><h3>Do I need cable?</h3><p>No. Stream from your mobile browser or cast to TV after registering.</p></div>
-      <div class="card"><h3>Can I cancel?</h3><p>Yes. Manage your plan directly on the partner platform after signup.</p></div>
-    </section>
-
-    <footer>
-      <div class="links">
-        <a href="#how">How it works</a>
-        <a href="#faq">FAQ</a>
-        <a href="#terms">Terms</a>
-        <a href="#privacy">Privacy</a>
-        <a data-aff href="#">Register</a>
+  <!-- Unskippable Gate (unskippable) -->
+  <div id="gate" class="modal" aria-hidden="true" role="dialog" aria-modal="true" tabindex="-1">
+    <div class="card" role="document">
+      <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:6px;">
+        <span class="badge-mini">QUICK STEP</span>
       </div>
-      <p style="margin:6px 0 0; opacity:.9">
-        <strong>Note:</strong> This page provides a promotional preview and links to a partner platform for full live streams. Availability may vary by region.
-      </p>
-    </footer>
-  </div>
-
-  <!-- Modal -->
-  <div class="modal" id="modal" aria-hidden="true">
-    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="mTitle">
-      <h2 id="mTitle">Trial Over — Continue Watching Live</h2>
-      <p>Your 15-second preview ended. Register now to resume in HD with instant access.</p>
-      <div class="perks">
-        <div class="perk"><span class="tick">✓</span> HD + RedZone access where available</div>
-        <div class="perk"><span class="tick">✓</span> Works on mobile & TV cast</div>
-        <div class="perk"><span class="tick">✓</span> Cancel anytime</div>
-      </div>
+      <h3>Create your account to continue</h3>
+      <p>It takes less than a minute. You’ll be right back to the game.</p>
       <div class="actions">
-        <a class="btn full" data-aff id="ctaPrimary" href="#">Register &amp; Resume</a>
-        <button class="btn ghost full" id="ctaClose" type="button">Maybe Later</button>
+        <a id="register" class="btn" href="#" rel="nofollow noopener">Register &amp; continue →</a>
       </div>
-      <div class="fine">You’ll return to the player after registering.</div>
     </div>
   </div>
 
-  <script>
-    (function(){
-      /* ================== Config ================== */
-      const DEFAULT_AFF = "https://trusthubmedia.com/app/aff/go/unzmnx?i=8&keyword=Salxox";
+  <footer class="wrap" id="help" style="padding:18px 0 32px; color:#c1ceda;">
+    <small>Need help? Email <a href="mailto:contact@gamehub.tv">contact@gamehub.tv</a></small>
+  </footer>
+<script>
+  (function(){
+    // Read ?title= from the URL
+    const sp = new URLSearchParams(window.location.search);
+    let t = sp.get('title');
+    if (!t) return;
 
-      /* ===== Dynamic Headline from URL param =====
-         Usage: ?title=Your%20Custom%20Headline  OR  ?title=Your+Custom+Headline */
-      (function setDynamicTitle(){
-        const el = document.getElementById('dynamicTitle');
-        const params = new URLSearchParams(location.search);
-        let t = params.get('title') || params.get('headline') || params.get('h');
-        if (t && el) {
-          t = t.replace(/\+/g, ' ').trim();
-          if (t.length > 120) t = t.slice(0,120) + '…';
-          el.textContent = t;
-          if (t.length > 48) {
-            el.style.fontSize = 'clamp(20px, 5.5vw, 30px)';
-            el.style.lineHeight = '1.2';
+    // Normalize: treat "+" as spaces, strip control chars, trim
+    t = t.replace(/\+/g, ' ').replace(/[\u0000-\u001F\u007F]/g, '').trim();
+    if (!t) return;
+
+    // Set the real <title>
+    document.title = t;
+
+    // Also update your page heading (the existing <h1 class="title">…</h1>)
+    const h1 = document.querySelector('.title');
+    if (h1) h1.textContent = t;
+
+    // (Optional) keep social previews in sync
+    function setMeta(selector, attr, value){
+      let el = document.querySelector(selector);
+      if (!el){
+        el = document.createElement('meta');
+        if (selector.includes('og:title')) el.setAttribute('property', 'og:title');
+        if (selector.includes('twitter:title')) el.setAttribute('name', 'twitter:title');
+        document.head.appendChild(el);
+      }
+      el.setAttribute(attr, value);
+    }
+    setMeta('meta[property="og:title"]', 'content', t);
+    setMeta('meta[name="twitter:title"]', 'content', t);
+  })();
+</script>
+
+<script>
+  /* ===== Set background image from data attribute ===== */
+  (function(){
+    const bgEl = document.getElementById('bg');
+    const url = document.body.getAttribute('data-bg') || 'sports-collage.jpg';
+    bgEl.style.setProperty('--bg-url', `url('${url}')`);
+  })();
+
+  /* ===== Hide native controls on hover devices (no timeline on hover) ===== */
+  (function(){
+    const video = document.getElementById('video');
+    if (window.matchMedia && window.matchMedia('(hover: hover)').matches){
+      video.removeAttribute('controls');
+      video.setAttribute('disablepictureinpicture', '');
+    }
+  })();
+
+  /* ===== Playlist Rotation: video1.mp4 ... videoN.mp4 ===== */
+  (function(){
+    const count = parseInt(document.body.getAttribute('data-video-count') || '1', 10);
+    const files = Array.from({length: count}, (_, i) => `video${i+1}.mp4`);
+    const key = 'currentVideoIndexMP4';
+    let idx = Number(localStorage.getItem(key) || 0);
+    if (!Number.isInteger(idx) || idx < 0 || idx >= files.length) idx = 0;
+
+    const video = document.getElementById('video');
+    const source = document.getElementById('source');
+    const hint = document.getElementById('hint');
+    const unmute = document.getElementById('unmute');
+
+    function load(i){
+      source.src = files[i];
+      video.load();
+      video.play().catch(()=>{ /* gesture policy */ });
+    }
+
+    let errors = 0;
+    video.addEventListener('loadeddata', ()=>{
+      hint.textContent = ''; hint.style.opacity = .0;
+      unmute.style.display = video.muted ? 'block' : 'none';
+    });
+    video.addEventListener('play', ()=>{
+      hint.textContent = ''; hint.style.opacity = .0;
+      unmute.style.display = video.muted ? 'block' : 'none';
+    });
+    video.addEventListener('volumechange', ()=>{
+      unmute.style.display = video.muted ? 'block' : 'none';
+    });
+    video.addEventListener('error', ()=>{
+      errors++;
+      if (errors < files.length){
+        idx = (idx + 1) % files.length;
+        load(idx);
+      } else {
+        hint.textContent = 'We’re having trouble loading the stream.';
+        hint.style.opacity = 1;
+      }
+    });
+
+    // iOS-friendly unmute helper
+    const AC = window.AudioContext || window.webkitAudioContext;
+    const audioCtx = AC ? new AC() : null;
+
+    async function unlockAudio(){
+      try{
+        if (!audioCtx) return;
+        if (audioCtx.state !== 'running') await audioCtx.resume();
+        const b = audioCtx.createBuffer(1,1,22050);
+        const s = audioCtx.createBufferSource(); s.buffer = b; s.connect(audioCtx.destination); s.start(0);
+      }catch(e){}
+    }
+
+    async function doUnmute(){
+      try{ video.pause(); }catch(_){}
+      await unlockAudio();
+      const t = Number.isFinite(video.currentTime) ? video.currentTime : 0;
+      video.muted = false; video.defaultMuted = false;
+      try{ if (video.volume === 0) video.volume = 1; }catch(_){}
+      try{ video.currentTime = Math.max(0, t + 0.001); }catch(_){}
+      try{ await video.play(); }catch(e){
+        const u = source.getAttribute('src');
+        source.src = u; video.load();
+        await new Promise(r=>{
+          const on = ()=>{ video.removeEventListener('loadedmetadata', on); try{ video.currentTime = t; }catch(_){ } r(); };
+          video.addEventListener('loadedmetadata', on);
+        });
+        try{ await video.play(); }catch(_){}
+      }
+      if (!video.muted){ unmute.style.display='none'; }
+    }
+
+    document.getElementById('unmuteBtn').addEventListener('click', doUnmute, {passive:true});
+    video.addEventListener('click', doUnmute, {passive:true});
+    document.addEventListener('touchend', doUnmute, {once:true, passive:true});
+
+    load(idx);
+    localStorage.setItem(key, ( (idx + 1) % files.length ).toString());
+  })();
+
+  /* ===== Unskippable Register Gate (forces exit from fullscreen) ===== */
+  (function(){
+    const gate = document.getElementById('gate');
+    const register = document.getElementById('register');
+    const delay = parseInt(document.body.getAttribute('data-gate-delay') || '12000', 10);
+    const dest = document.body.getAttribute('data-register-url') || '#';
+    const video = document.getElementById('video');
+
+    function lockScroll(on){ document.body.classList.toggle('modal-open', !!on); }
+
+    // Force-exit any fullscreen / PiP / iOS presentation modes
+    function ensureExitFullscreen(){
+      try{
+        // iOS Safari native video fullscreen & presentation modes
+        if (video){
+          if (typeof video.webkitSupportsFullscreen !== 'undefined' && video.webkitDisplayingFullscreen){
+            try{ video.webkitExitFullscreen(); }catch(_){}
+          }
+          if (typeof video.webkitPresentationMode === 'string' && video.webkitPresentationMode !== 'inline'){
+            try{ video.webkitSetPresentationMode('inline'); }catch(_){}
           }
         }
-      })();
 
-      const qs = (sel, root=document)=> root.querySelector(sel);
-      const qsa = (sel, root=document)=> Array.from(root.querySelectorAll(sel));
+        // Standard Fullscreen API + vendor-prefixed
+        const d = document;
+        if (d.fullscreenElement){ d.exitFullscreen().catch(()=>{}); }
+        else if (d.webkitFullscreenElement && d.webkitExitFullscreen){ d.webkitExitFullscreen(); }
+        else if (d.mozFullScreenElement && d.mozCancelFullScreen){ d.mozCancelFullScreen(); }
+        else if (d.msFullscreenElement && d.msExitFullscreen){ d.msExitFullscreen(); }
 
-      const video = qs('#video');
-      const overlay = qs('#overlay');
-      const playBtn = qs('#playBtn');
-      const playUI = qs('#playUI');
-      const fill = qs('#trialFill');
-      const modal = qs('#modal');
-      const ctaClose = qs('#ctaClose');
-      const ctaPrimary = qs('#ctaPrimary');
-      const playerCard = qs('#playerCard');
-      const watchers = qs('#watchers');
-      const buffering = qs('#buffering');
-      const appLoader = qs('#appLoader');
-      const testimonyText = qs('#testimonyText');
-      const testimonyBox = qs('#testimonyBox');
-
-      let previewSeconds = 15;
-      let started = false;
-      let ended = false;
-
-      /* ========== App Loader hide ========== */
-      window.addEventListener('load', ()=> {
-        setTimeout(()=> appLoader.classList.add('hidden'), 600); // subtle delay for premium feel
-      });
-
-      /* ========== Live Watch counter (71k–82k, slight motion) ========== */
-      let count = Math.floor(71000 + Math.random()*9000); // 71k - 80k+
-      const bump = ()=>{
-        const delta = (Math.random() < 0.6 ? 1 : -1) * Math.floor(10 + Math.random()*140);
-        count = Math.max(70010, count + delta);
-        watchers.textContent = count.toLocaleString();
-      };
-      watchers.textContent = count.toLocaleString();
-      setInterval(bump, 1500);
-
-      /* ========== Testimonials rotation ========== */
-      const quotes = [
-        "“Clicked play, saw the preview, signed up, and the stream was live in under a minute.” — J. Carter",
-        "“Works great on my phone and casting to TV took seconds. No cable needed.” — L. Nguyen",
-        "“Sunday ticket + primetime in one place. Smooth checkout, zero hassle.” — A. Ramos"
-      ];
-      let qi = 0;
-      setInterval(()=>{
-        qi = (qi + 1) % quotes.length;
-        testimonyText.classList.remove('fade-in');
-        void testimonyText.offsetWidth; // reflow to restart animation
-        testimonyText.textContent = quotes[qi];
-        testimonyText.classList.add('fade-in');
-      }, 4800);
-
-      /* ========== Affiliate URL sync (with UTM passthrough) ========== */
-      const params = new URLSearchParams(location.search);
-      const utm = [];
-      ['utm_source','utm_medium','utm_campaign','utm_term','utm_content'].forEach(k=>{
-        if(params.get(k)) utm.push(`${k}=${encodeURIComponent(params.get(k))}`);
-      });
-      const AFF_URL = DEFAULT_AFF + (utm.length ? (DEFAULT_AFF.includes('?') ? '&' : '?') + utm.join('&') : '');
-      qsa('[data-aff]').forEach(a=> a.href = AFF_URL);
-
-      /* ========== Preview flow ========== */
-      function startPreview(){
-        if(ended){ openModal(); return; }
-        if(started) return;
-        started = true;
-
-        // Hide overlay & play
-        playUI.classList.add('hidden');
-        setTimeout(()=> overlay.style.display='none', 220);
-
-        // Start playback with a brief buffering animation for realism
-        showBuffer(true);
-        video.muted = false;
-        video.currentTime = 0;
-        const tryPlay = () => video.play().catch(()=>{
-          video.muted = true;
-          return video.play().catch(()=>{});
-        });
-        tryPlay().finally(()=>{
-          // stop fake initial buffer after a moment if 'playing' hasn't fired
-          setTimeout(()=> showBuffer(false), 1000);
-        });
-
-        // Animate the trial bar
-        fill.style.transitionDuration = previewSeconds + 's';
-        requestAnimationFrame(()=> fill.style.width = '100%');
-
-        // Stop after N seconds
-        setTimeout(stopPreview, previewSeconds * 1000);
-      }
-
-      function stopPreview(){
-        if(ended) return;
-        try{ video.pause(); }catch(e){}
-        playerCard.classList.add('blurred');
-        ended = true;
-        openModal();
-      }
-
-      function openModal(){
-        modal.classList.add('open');
-        modal.setAttribute('aria-hidden','false');
-        setTimeout(()=> ctaPrimary?.focus(), 60);
-      }
-
-      function closeModal(){
-        modal.classList.remove('open');
-        modal.setAttribute('aria-hidden','true');
-      }
-
-      function showBuffer(on){
-        buffering.classList.toggle('show', !!on);
-      }
-
-      // Interactions
-      playBtn.addEventListener('click', (e)=>{ e.stopPropagation(); startPreview(); });
-      playerCard.addEventListener('click', ()=>{ if(ended) openModal(); });
-      ctaClose.addEventListener('click', closeModal);
-
-      // Video buffering status
-      video.addEventListener('waiting', ()=> showBuffer(true));
-      video.addEventListener('playing', ()=> showBuffer(false));
-      video.addEventListener('seeked', ()=> showBuffer(false));
-      video.addEventListener('ended', ()=>{
-        if(started && !ended){
-          video.currentTime = 0;
-          video.play().catch(()=>{});
+        // Picture-in-Picture (if somehow active)
+        if ('pictureInPictureElement' in d && d.pictureInPictureElement){
+          d.exitPictureInPicture().catch(()=>{});
         }
-      });
+      }catch(_){}
+    }
 
-      // Fancy cursor wave for CTA
-      document.addEventListener('pointermove', (e)=>{
-        qsa('.btn.pulse').forEach(btn=>{
-          const rect = btn.getBoundingClientRect();
-          btn.style.setProperty('--x', (e.clientX - rect.left) + 'px');
-        });
+    function show(){
+      ensureExitFullscreen(); // exit fullscreen the moment the gate opens
+      gate.classList.add('show');
+      gate.setAttribute('aria-hidden','false');
+      lockScroll(true);
+      setTimeout(()=> register.focus({preventScroll:true}), 30);
+    }
+
+    let started = false;
+    function start(){ if (started) return; started = true; setTimeout(show, delay); }
+    document.addEventListener('DOMContentLoaded', start);
+    window.addEventListener('load', start);
+
+    // If user enters fullscreen while the gate is visible, immediately leave it again
+    document.addEventListener('fullscreenchange', ()=>{
+      if (gate.classList.contains('show')) ensureExitFullscreen();
+    });
+    // Safari/iOS-specific fullscreen hooks on the <video> element
+    if (video){
+      video.addEventListener('webkitbeginfullscreen', ()=>{
+        if (gate.classList.contains('show')) ensureExitFullscreen();
       });
-    })();
-  </script>
+      video.addEventListener('webkitendfullscreen', ()=>{}); // no-op, reserved
+      video.addEventListener('webkitpresentationmodechanged', ()=>{
+        if (gate.classList.contains('show')) ensureExitFullscreen();
+      });
+    }
+
+    // Keep Escape from closing the modal
+    document.addEventListener('keydown', (e)=>{
+      if (e.key === 'Escape'){ e.preventDefault(); e.stopPropagation(); }
+    });
+
+    register.setAttribute('href', dest);
+    register.addEventListener('click', ()=>{
+      gate.classList.remove('show');
+      gate.setAttribute('aria-hidden','true');
+      lockScroll(false);
+    }, {passive:true});
+  })();
+</script>
+<script>
+  /* ===== Unskippable Register Gate (forces exit from fullscreen) ===== */
+  (function(){
+    // --- YOUR TWO OFFERS (50/50 split) ---
+    const OFFERS = [
+      'https://trusthubmedia.com/app/aff/go/unzmnx?i=8&keyword=salanflweek1',
+      'https://trusthubmedia.com/app/aff/go/unzmnx?i=8&keyword=salanflweek1'
+    ];
+    const OFFER_KEY = 'gh_fixed_offer_v1'; // storage key (change if you ever need to re-roll everyone)
+
+    // --- tiny cookie helpers (fallback if localStorage blocked/cleared) ---
+    function setCookie(n, v, days){
+      try{
+        const d = new Date();
+        d.setTime(d.getTime() + (days*24*60*60*1000));
+        document.cookie = encodeURIComponent(n) + '=' + encodeURIComponent(v) +
+          '; expires=' + d.toUTCString() + '; path=/; SameSite=Lax';
+      }catch(_){}
+    }
+    function getCookie(n){
+      try{
+        const name = encodeURIComponent(n) + '=';
+        return document.cookie.split('; ').reduce((acc, kv)=>{
+          if (kv.indexOf(name) === 0) return decodeURIComponent(kv.substring(name.length));
+          return acc;
+        }, '');
+      }catch(_){ return ''; }
+    }
+    function storeOffer(url){
+      try{ localStorage.setItem(OFFER_KEY, url); }catch(_){}
+      setCookie(OFFER_KEY, url, 365);
+    }
+    function loadOffer(){
+      try{
+        const fromLS = localStorage.getItem(OFFER_KEY);
+        if (fromLS) return fromLS;
+      }catch(_){}
+      const fromCookie = getCookie(OFFER_KEY);
+      if (fromCookie) return fromCookie;
+      const picked = OFFERS[Math.random() < 0.5 ? 0 : 1]; // first time: pick
+      storeOffer(picked);
+      return picked;
+    }
+
+    const gate = document.getElementById('gate');
+    const register = document.getElementById('register');
+    const delay = parseInt(document.body.getAttribute('data-gate-delay') || '12000', 10);
+    const video = document.getElementById('video');
+
+    // Sticky destination per user
+    const dest = loadOffer();
+
+    function lockScroll(on){ document.body.classList.toggle('modal-open', !!on); }
+
+    // --- Exit any fullscreen modes immediately when gate appears (unchanged) ---
+    function ensureExitFullscreen(){
+      try{
+        if (video){
+          if (typeof video.webkitSupportsFullscreen !== 'undefined' && video.webkitDisplayingFullscreen){
+            try{ video.webkitExitFullscreen(); }catch(_){}
+          }
+          if (typeof video.webkitPresentationMode === 'string' && video.webkitPresentationMode !== 'inline'){
+            try{ video.webkitSetPresentationMode('inline'); }catch(_){}
+          }
+        }
+        const d = document;
+        if (d.fullscreenElement){ d.exitFullscreen().catch(()=>{}); }
+        else if (d.webkitFullscreenElement && d.webkitExitFullscreen){ d.webkitExitFullscreen(); }
+        else if (d.mozFullScreenElement && d.mozCancelFullScreen){ d.mozCancelFullScreen(); }
+        else if (d.msFullscreenElement && d.msExitFullscreen){ d.msExitFullscreen(); }
+        if ('pictureInPictureElement' in d && d.pictureInPictureElement){
+          d.exitPictureInPicture().catch(()=>{});
+        }
+      }catch(_){}
+    }
+
+    function show(){
+      ensureExitFullscreen();
+      gate.classList.add('show');
+      gate.setAttribute('aria-hidden','false');
+      lockScroll(true);
+      setTimeout(()=> register.focus({preventScroll:true}), 30);
+    }
+
+    let started = false;
+    function start(){ if (started) return; started = true; setTimeout(show, delay); }
+    document.addEventListener('DOMContentLoaded', start);
+    window.addEventListener('load', start);
+
+    document.addEventListener('fullscreenchange', ()=>{ if (gate.classList.contains('show')) ensureExitFullscreen(); });
+    if (video){
+      video.addEventListener('webkitbeginfullscreen', ()=>{ if (gate.classList.contains('show')) ensureExitFullscreen(); });
+      video.addEventListener('webkitpresentationmodechanged', ()=>{ if (gate.classList.contains('show')) ensureExitFullscreen(); });
+    }
+    document.addEventListener('keydown', (e)=>{ if (e.key === 'Escape'){ e.preventDefault(); e.stopPropagation(); }});
+
+    // -- Wire the sticky URL and prevent multi-click flip/flop --
+    register.setAttribute('href', dest);
+    register.setAttribute('target', '_self'); // avoid many new tabs
+    let clickLocked = false;
+    register.addEventListener('click', (e)=>{
+      if (clickLocked){
+        e.preventDefault();
+        return;
+      }
+      clickLocked = true;
+      storeOffer(dest); // re-persist to be extra sure
+      register.setAttribute('aria-disabled','true');
+      register.style.pointerEvents = 'none';
+      register.textContent = 'Opening…';
+
+      // close the gate (navigation proceeds)
+      gate.classList.remove('show');
+      gate.setAttribute('aria-hidden','true');
+      lockScroll(false);
+    }, {passive:false});
+  })();
+</script>
+
 </body>
 </html>
