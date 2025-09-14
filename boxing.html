@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Stream - Now Playing</title>
+    <style>
+        /* --- Basic Setup & Netflix Style --- */
+        body {
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            background-color: #141414; /* Netflix dark background */
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #fff;
+            flex-direction: column; /* Stack player and button vertically */
+            overflow: hidden; /* Prevents scrollbars when popup is active */
+        }
+
+        /* --- Main Player Container --- */
+        .player-container {
+            position: relative;
+            width: 90%;
+            max-width: 1000px;
+            aspect-ratio: 16 / 9;
+            background-color: #000000;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            cursor: pointer;
+            overflow: hidden;
+            box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        /* --- Video Element --- */
+        #mainVideo {
+            width: 100%;
+            height: 100%;
+            border-radius: 8px;
+            object-fit: cover;
+            display: none; /* Hidden until play is clicked */
+        }
+        
+        .player-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 25%);
+            z-index: 1;
+            pointer-events: none; /* Allows clicks to go through to the video/play button */
+        }
+
+        /* --- Play Button & Loader --- */
+        #playButton, #loader {
+            position: absolute;
+            z-index: 2;
+        }
+
+        #playButton {
+            width: 90px;
+            height: 90px;
+            background-color: rgba(0, 0, 0, 0.5);
+            border: 3px solid white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: transform 0.2s ease, background-color 0.2s ease;
+        }
+
+        #playButton:hover {
+            transform: scale(1.1);
+            background-color: rgba(229, 9, 20, 0.8);
+        }
+        
+        #playButton svg {
+            width: 40px;
+            height: 40px;
+            fill: white;
+            margin-left: 5px;
+        }
+
+        .stream-title {
+            position: absolute;
+            bottom: 30px;
+            left: 30px;
+            z-index: 2;
+            font-size: clamp(1.1rem, 4vw, 2.2rem);
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+        }
+
+        #loader {
+            display: none;
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #e50914;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* --- Register Button Style --- */
+        .register-button {
+            display: inline-block;
+            margin-top: 30px;
+            padding: 15px 35px;
+            background-color: #e50914;
+            color: #ffffff;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.2s ease;
+            box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .register-button:hover {
+            background-color: #f6121d;
+            transform: translateY(-2px);
+        }
+        
+        /* --- NEW: Popup Styles --- */
+        #popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.85);
+            z-index: 1000;
+            display: none; /* Hidden by default */
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        
+        #popup-content {
+            background-color: #1f1f1f;
+            padding: 30px 40px;
+            border-radius: 8px;
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        }
+        
+        #popup-content h2 {
+            margin-top: 0;
+            font-size: 24px;
+        }
+        
+        #popup-content p {
+            font-size: 16px;
+            color: #ccc;
+            margin-bottom: 25px;
+        }
+
+        /* --- Mobile Responsive Fixes --- */
+        @media (max-width: 600px) {
+            .stream-title { left: 20px; bottom: 20px; }
+            #playButton { width: 70px; height: 70px; }
+            #playButton svg { width: 30px; height: 30px; }
+            .register-button { width: 90%; font-size: 16px; padding: 15px 20px; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="player-container" id="player">
+        <!-- The video is now inside the container -->
+        <video id="mainVideo" playsinline>
+            <source src="video.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+        
+        <!-- These elements are overlays -->
+        <div class="player-overlay"></div>
+        <div class="stream-title" id="streamTitle">
+            LIVE EVENT: Now Streaming
+        </div>
+        <div id="playButton">
+            <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"></path></svg>
+        </div>
+        <div id="loader"></div>
+    </div>
+
+    <!-- Main Register Button Below Player -->
+    <a href="https://trusthubmedia.com/app/aff/go/unzmnx?i=2&keyword=boxham" class="register-button" target="_blank">Register Now</a>
+
+    <!-- Non-Closable Popup Structure (hidden by default) -->
+    <div id="popup-overlay">
+        <div id="popup-content">
+            <h2>Complete Your Registration</h2>
+            <p>To continue watching the full stream, please create your free account. Access will be granted instantly!</p>
+            <a href="https://trusthubmedia.com/app/aff/go/unzmnx?i=2&keyword=boxham" class="register-button" target="_blank">Create an Account</a>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        const playerContainer = document.getElementById('player');
+        const playButton = document.getElementById('playButton');
+        const loader = document.getElementById('loader');
+        const streamTitle = document.getElementById('streamTitle');
+        const mainVideo = document.getElementById('mainVideo');
+        const popupOverlay = document.getElementById('popup-overlay');
+        
+        let popupTimer;
+
+        // --- Event listener for clicking the player ---
+        playerContainer.addEventListener('click', () => {
+            // Only run if the video is not already playing
+            if (mainVideo.paused) {
+                playButton.style.display = 'none';
+                streamTitle.style.display = 'none';
+                loader.style.display = 'block';
+
+                setTimeout(() => {
+                    loader.style.display = 'none';
+                    mainVideo.style.display = 'block';
+                    mainVideo.play();
+                }, 1500); // 1.5 second loading simulation
+            }
+        });
+
+        // --- Event listener for when the video starts playing ---
+        mainVideo.addEventListener('playing', () => {
+            // Set a timer to show the popup after 15 seconds
+            popupTimer = setTimeout(() => {
+                mainVideo.pause();
+                popupOverlay.style.display = 'flex';
+            }, 15000); // 15000 milliseconds = 15 seconds
+        });
+        
+        // --- Optional: Clear timer if video is paused manually before 15s ---
+        mainVideo.addEventListener('pause', () => {
+            clearTimeout(popupTimer);
+        });
+
+    </script>
+
+</body>
+</html>
